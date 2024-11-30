@@ -1,0 +1,6 @@
+.idea
+local_settings.yaml
+tmp
+main
+Logs/*
+uploads/*

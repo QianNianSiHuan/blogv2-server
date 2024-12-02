@@ -54,7 +54,7 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 func InitFile(logPath, appName string) {
-	fileDate := time.Now().Format("2006-01-02_15-04")
+	fileDate := time.Now().Format("2006-01-02")
 	//创建目录
 	err := os.MkdirAll(fmt.Sprintf("%s/%s", logPath, fileDate), os.ModePerm)
 	if err != nil {
@@ -79,7 +79,7 @@ func InitLogrus() {
 	logrus.SetFormatter(&LogFormatter{}) //设置自己定义的Formatter
 	logrus.SetLevel(logrus.DebugLevel)
 	InitFile(global.Config.Log.Dir, global.Config.Log.App) //设置最低的Level
-	logrus.Info("日志初始化成功")
+	logrus.Infof("日志初始化成功")
 }
 
 type FileDateHook struct {

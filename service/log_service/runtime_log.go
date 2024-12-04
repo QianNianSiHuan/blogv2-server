@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type RuntimeLog struct {
@@ -21,8 +22,10 @@ type RuntimeLog struct {
 }
 
 func (ac *RuntimeLog) Save() {
+	ac.SetNowTime()
 	var log models.LogModel
-	global.DB.Find(&log, fmt.Sprintf("service_name = ? and log_type = ? and created_at>=date_sub(now(),%s)",
+	//判断创建还是更新
+	global.DB.Find(&log, fmt.Sprintf("service_name = ? and log_type = ? and created_at >= date_sub(now(),%s)",
 		ac.runtimeDateType.GetSqlTime()), ac.serviceName, enum.RuntimeLogType)
 	content := strings.Join(ac.itemList, "\n")
 	if log.UUID != 0 {
@@ -89,7 +92,9 @@ func (ac *RuntimeLog) SetItemWarn(label string, value any) {
 func (ac *RuntimeLog) SetItemError(label string, value any) {
 	ac.setItem(label, value, enum.LofErrLevel)
 }
-
+func (ac *RuntimeLog) SetNowTime() {
+	ac.itemList = append(ac.itemList, fmt.Sprintf("更新时间:%s", time.Now().Format("2006-01-02 15:04:05")))
+}
 func (ac *RuntimeLog) SetError(label string, err error) {
 	msg := errors.WithStack(err)
 	logrus.Errorf(err.Error())

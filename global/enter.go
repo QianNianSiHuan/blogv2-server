@@ -1,7 +1,7 @@
 package global
 
 import (
-	"blogv2.0/conf"
+	"blogv2/conf"
 	"gorm.io/gorm"
 )
 

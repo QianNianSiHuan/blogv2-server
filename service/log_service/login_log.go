@@ -1,10 +1,10 @@
 package log_service
 
 import (
-	"blogv2.0/core"
-	"blogv2.0/global"
-	"blogv2.0/models"
-	"blogv2.0/models/enum"
+	"blogv2/core"
+	"blogv2/global"
+	"blogv2/models"
+	"blogv2/models/enum"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +35,7 @@ func NewLoginFail(c *gin.Context, loginType enum.LoginType, msg string, username
 	addr := core.GetIpAddr(ip)
 	global.DB.Create(&models.LogModel{
 		LogType:     enum.LoginLogType,
-		Title:       "用户登录",
+		Title:       "登录失败",
 		Content:     msg,
 		IP:          ip,
 		Addr:        addr,

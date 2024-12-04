@@ -1,8 +1,8 @@
 package core
 
 import (
-	"blogv2.0/conf"
-	"blogv2.0/flags"
+	"blogv2/conf"
+	"blogv2/flags"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"blogv2.0/global"
+	"blogv2/global"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

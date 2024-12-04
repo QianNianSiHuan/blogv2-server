@@ -1,7 +1,8 @@
 package router
 
 import (
-	"blogv2.0/global"
+	"blogv2/global"
+	"blogv2/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -9,6 +10,7 @@ import (
 func Run() {
 	r := gin.Default()
 	nr := r.Group("/api")
+	nr.Use(middleware.LogMiddleware)
 	SiteRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)

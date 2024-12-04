@@ -1,7 +1,7 @@
 package core
 
 import (
-	"blogv2.0/global"
+	"blogv2/global"
 	"bytes"
 	"fmt"
 	"github.com/sirupsen/logrus"

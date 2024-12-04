@@ -1,6 +1,6 @@
 package api
 
-import "blogv2.0/api/site_api"
+import "blogv2/api/site_api"
 
 type Api struct {
 	SiteAPi site_api.SiteApi

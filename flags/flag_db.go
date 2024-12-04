@@ -1,8 +1,8 @@
 package flags
 
 import (
-	"blogv2.0/global"
-	"blogv2.0/models"
+	"blogv2/global"
+	"blogv2/models"
 	"github.com/sirupsen/logrus"
 )
 

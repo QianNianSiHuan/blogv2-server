@@ -1,11 +1,10 @@
 package main
 
 import (
-	"blogv2.0/core"
-	"blogv2.0/flags"
-	"blogv2.0/global"
-	"blogv2.0/router"
-
+	"blogv2/core"
+	"blogv2/flags"
+	"blogv2/global"
+	"blogv2/router"
 	"github.com/sirupsen/logrus"
 )
 

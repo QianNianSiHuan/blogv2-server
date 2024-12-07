@@ -1,6 +1,7 @@
 package flags
 
 import (
+	"blogv2/artFontFiles"
 	"blogv2/global"
 	"flag"
 	"github.com/sirupsen/logrus"
@@ -26,10 +27,13 @@ func Parse() {
 func Run() {
 	if FlagOptions.DB {
 		FlagDB()
+		artFontFiles.OutPutArtisticFont(artFontFiles.SUCCESS)
 		os.Exit(0)
 	}
 	if FlagOptions.Debug {
 		global.DB = global.DB.Debug()
 		logrus.Warnf("gorm debug模式 已开启")
+		artFontFiles.OutPutArtisticFont(artFontFiles.GIN_DEBUG)
+		artFontFiles.OutPutArtisticFont(artFontFiles.GORM_DEBUG)
 	}
 }

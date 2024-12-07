@@ -28,7 +28,7 @@ func (ac *RuntimeLog) Save() {
 	global.DB.Find(&log, fmt.Sprintf("service_name = ? and log_type = ? and created_at >= date_sub(now(),%s)",
 		ac.runtimeDateType.GetSqlTime()), ac.serviceName, enum.RuntimeLogType)
 	content := strings.Join(ac.itemList, "\n")
-	if log.UUID != 0 {
+	if log.ID != 0 {
 		//更新
 		c := strings.Join(ac.itemList, "\n")
 		newContent := log.Content + "\n" + c

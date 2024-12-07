@@ -3,7 +3,7 @@ package models
 import "blogv2/models/enum"
 
 type LogModel struct {
-	Model       `json:"model"`
+	Model
 	LogType     enum.LogType      `json:"logType" json:"logType"`
 	Title       string            `gorm:"size:64" json:"title" json:"title"`
 	Content     string            `json:"content" json:"content"`

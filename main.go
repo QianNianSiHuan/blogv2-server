@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blogv2/artFontFiles"
 	"blogv2/core"
 	"blogv2/flags"
 	"blogv2/global"
@@ -14,8 +15,11 @@ func main() {
 	core.InitLogrus()
 	logrus.Infof("当前配置文件为: %s", flags.FlagOptions.File)
 	global.DB = core.InitDB()
+	global.Redis = core.InitRedis()
 	core.InitIPDb()
 	flags.Run()
+	artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
 	//启动web程序
 	router.Run()
+
 }

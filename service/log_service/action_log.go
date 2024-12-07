@@ -5,6 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
+	jwts "blogv2/unitls/jwt"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -93,7 +94,7 @@ func (ac *ActionLog) SetRequest(c *gin.Context) {
 		logrus.Errorf(err.Error())
 	}
 	c.Request.Body = io.NopCloser(bytes.NewReader(byteData))
-	logrus.Info("body: ", string(byteData))
+	//logrus.Info("body: ", string(byteData))
 	ac.requestBody = byteData
 }
 func (ac *ActionLog) SetResponse(data []byte) {
@@ -142,7 +143,7 @@ func (ac *ActionLog) Save() (id uint) {
 			"content": content,
 		})
 		ac.itemList = []string{}
-		return ac.log.UUID
+		return ac.log.ID
 	}
 	var newItemList []string
 	//设置请求
@@ -178,24 +179,29 @@ func (ac *ActionLog) Save() (id uint) {
 	}
 	ip := ac.c.ClientIP()
 	addr := core.GetIpAddr(ip)
-	UserID := uint(1)
+	userID := uint(0)
+	claims, err := jwts.ParseTokenByGin(ac.c)
+	if err == nil && claims != nil {
+		userID = claims.UserID
+	}
+
 	log := models.LogModel{
 		LogType: enum.ActionLogType,
 		Title:   ac.title,
 		Content: strings.Join(newItemList, "\n"),
 		Level:   ac.level,
-		UserID:  UserID,
+		UserID:  userID,
 		IP:      ip,
 		Addr:    addr,
 	}
-	err := global.DB.Create(&log).Error
+	err = global.DB.Create(&log).Error
 	if err != nil {
 		logrus.Errorf("日志创建失败 %s", err)
 		return
 	}
 	ac.log = &log
 	ac.itemList = []string{}
-	return log.UUID
+	return log.ID
 }
 func NewActionLogByGin(c *gin.Context) *ActionLog {
 	return &ActionLog{

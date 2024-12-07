@@ -22,7 +22,7 @@ func InitDB() *gorm.DB {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
-	logrus.Info("数据库连接成功")
+	logrus.Infof("数据库连接成功")
 	if !dc1.Empty() {
 		err = db.Use(dbresolver.Register(dbresolver.Config{
 			// use `db2` as sources, `db3`, `db4` as replicas

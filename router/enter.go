@@ -1,6 +1,7 @@
 package router
 
 import (
+	"blogv2/flags"
 	"blogv2/global"
 	"blogv2/middleware"
 	"github.com/gin-gonic/gin"
@@ -8,10 +9,14 @@ import (
 )
 
 func Run() {
+	if !flags.FlagOptions.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.Default()
 	nr := r.Group("/api")
 	nr.Use(middleware.LogMiddleware)
 	SiteRouter(nr)
+	LogRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

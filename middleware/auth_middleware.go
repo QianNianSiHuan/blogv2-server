@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 用户验证中间件
 func AuthMiddleware(c *gin.Context) {
 	claims, err := jwts.ParseTokenByGin(c)
 	if err != nil {
@@ -24,6 +25,8 @@ func AuthMiddleware(c *gin.Context) {
 	c.Set("claims", claims)
 	return
 }
+
+// 管理员验证中间件
 func AdminMiddleware(c *gin.Context) {
 	claims, err := jwts.ParseTokenByGin(c)
 	if err != nil {

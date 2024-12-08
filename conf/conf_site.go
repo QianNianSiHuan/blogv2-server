@@ -3,7 +3,7 @@ package conf
 import "blogv2/conf/site"
 
 type Site struct {
-	SiteInfo   site.SiteInfo   `yaml:"siteInfo" json:"siteInfo"`
+	SiteInfo   site.SitesInfo  `yaml:"siteInfo" json:"siteInfo"`
 	Project    site.Project    `yaml:"project" json:"project"`
 	Seo        site.Seo        `yaml:"seo" json:"seo"`
 	About      site.About      `yaml:"about" json:"about"`

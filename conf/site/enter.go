@@ -1,6 +1,6 @@
 package site
 
-type SiteInfo struct {
+type SitesInfo struct {
 	Title string `yaml:"title" json:"title"`
 	Logo  string `yaml:"logo" json:"logo"`
 	Beian string `yaml:"beian" json:"beian"`

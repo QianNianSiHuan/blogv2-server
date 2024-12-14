@@ -14,4 +14,5 @@ type Config struct {
 	QQ     QQ     `yaml:"qq"`
 	Ai     Ai     `yaml:"ai"`
 	QiNiu  QiNiu  `yaml:"qiNiu"`
+	Upload Upload `yaml:"upload"`
 }

@@ -13,10 +13,13 @@ func Run() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
+	r.Static("/uploads", "uploads")
 	nr := r.Group("/api")
 	nr.Use(middleware.LogMiddleware)
 	SiteRouter(nr)
 	LogRouter(nr)
+	BannerRouter(nr)
+	ImageRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

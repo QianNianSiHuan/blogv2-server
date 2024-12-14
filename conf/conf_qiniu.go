@@ -9,4 +9,5 @@ type QiNiu struct {
 	Region    string `yaml:"region" json:"region"`
 	Prefix    string `yaml:"prefix" json:"prefix"`
 	Size      int    `yaml:"size" json:"size"`
+	Expiry    int    `yaml:"expiry" json:"expiry"` //过期时间
 }

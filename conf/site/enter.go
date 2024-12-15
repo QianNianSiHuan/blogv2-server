@@ -19,10 +19,12 @@ type About struct {
 	SiteDate string `yaml:"siteDate" json:"siteDate"`
 	QQ       string `yaml:"QQ" json:"QQ"`
 	Wechat   string `yaml:"wechat" json:"wechat"`
+	Version  string `yaml:"-" json:"version"`
 	Gitee    string `yaml:"gitee" json:"gitee"`
 	Bilibili string `yaml:"bilibili" json:"bilibili"`
 	GitHub   string `yaml:"gitHub" json:"gitHub"`
 }
+
 type Login struct {
 	QQLogin          bool `yaml:"qqLogin" json:"qqLogin"`
 	UsernamePwdLogin bool `yaml:"usernamePwdLogin" json:"usernamePwdLogin"`

@@ -6,7 +6,6 @@ import (
 	"blogv2/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func Run() {
@@ -14,20 +13,15 @@ func Run() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
-	r.Static("/bootstrap5", "./static/bootstrap5")
-	r.LoadHTMLGlob("static/view/*")
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.html", nil)
-	})
-	r.GET("/admin", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "admin.html", nil)
-	})
+	r.Static("/uploads", "uploads")
 	nr := r.Group("/api")
-	LoginRouter(nr)
-
 	nr.Use(middleware.LogMiddleware)
 	SiteRouter(nr)
 	LogRouter(nr)
+	UserRouter(nr)
+	CaptchaRouter(nr)
+	BannerRouter(nr)
+	ImageRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

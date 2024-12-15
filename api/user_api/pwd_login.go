@@ -1,0 +1,47 @@
+package user_api
+
+import (
+	"blogv2/common/res"
+	"blogv2/global"
+	"blogv2/models"
+	jwts "blogv2/unitls/jwt"
+	"blogv2/unitls/pwd"
+	"github.com/gin-gonic/gin"
+)
+
+type PwdLoginRequest struct {
+	Val      string `json:"val" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+func (UserApi) PwdLoginView(c *gin.Context) {
+	var cr PwdLoginRequest
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		res.FailWithError(c, err)
+		return
+	}
+	if !global.Config.Site.Login.UsernamePwdLogin {
+		res.FailWithMsg(c, "密码登录未启用")
+	}
+	var user models.UserModel
+	err = global.DB.Take(&user, "(username=? or email = ?)and password <> ''",
+		cr.Val, cr.Val,
+	).Error
+	if err != nil {
+		res.FailWithMsg(c, "用户名或密码错误")
+		return
+	}
+	if !pwd.CompareHashAndPassword(user.Password, cr.Password) {
+		res.FailWithMsg(c, "用户名或密码错误")
+		return
+	}
+
+	token, _ := jwts.GenToken(jwts.JwtPayLoad{
+		UserID:   user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+	})
+
+	res.SuccessWithData(c, token)
+}

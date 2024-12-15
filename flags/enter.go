@@ -2,6 +2,7 @@ package flags
 
 import (
 	"blogv2/artFontFiles"
+	"blogv2/flags/flag_user"
 	"blogv2/global"
 	"flag"
 	"github.com/sirupsen/logrus"
@@ -13,6 +14,8 @@ type Options struct {
 	DB      bool
 	Version bool
 	Debug   bool
+	Type    string
+	Sub     string
 }
 
 var FlagOptions = new(Options)
@@ -21,6 +24,8 @@ func Parse() {
 	flag.StringVar(&FlagOptions.File, "f", "settings.yaml", "配置文件")
 	flag.BoolVar(&FlagOptions.DB, "db", false, "数据库迁移")
 	flag.BoolVar(&FlagOptions.Version, "v", false, "版本")
+	flag.StringVar(&FlagOptions.Type, "t", "", "类型")
+	flag.StringVar(&FlagOptions.Sub, "s", "", "子类")
 	flag.BoolVar(&FlagOptions.Debug, "debug", false, "数据库debug模式")
 	flag.Parse()
 }
@@ -36,4 +41,14 @@ func Run() {
 		artFontFiles.OutPutArtisticFont(artFontFiles.GIN_DEBUG)
 		artFontFiles.OutPutArtisticFont(artFontFiles.GORM_DEBUG)
 	}
+	switch FlagOptions.Type {
+	case "user":
+		u := flag_user.FlagUser{}
+		switch FlagOptions.Sub {
+		case "creat":
+			u.Creat()
+			os.Exit(0)
+		}
+	}
+
 }

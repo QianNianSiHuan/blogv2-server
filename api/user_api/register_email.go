@@ -20,11 +20,15 @@ type RegisterEmailRequest struct {
 	Pwd       string `json:"pwd" binding:"required"`
 }
 
-func (UserApi) RegisterEmail(c *gin.Context) {
+func (UserApi) RegisterEmailView(c *gin.Context) {
 	var cr RegisterEmailRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
+		return
+	}
+	if !global.Config.Site.Login.EmailLogin {
+		res.FailWithMsg(c, "站点未启用邮箱注册")
 		return
 	}
 	value, ok := global.EmailVerifyStore.Load(cr.EmailID)

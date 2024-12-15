@@ -26,6 +26,10 @@ func (UserApi) SendEmailView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
+	if !global.Config.Site.Login.EmailLogin {
+		res.FailWithMsg(c, "站点未启用邮箱注册")
+		return
+	}
 	code := base64Captcha.RandText(4, "0123456789")
 	id := base64Captcha.RandomId()
 	err = global.CaptchaStore.Set(id, code)

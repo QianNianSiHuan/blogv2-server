@@ -10,7 +10,7 @@ type Model struct {
 	UpdatedAt time.Time
 }
 type IDRequest struct {
-	ID uint `json:"id" uri:"id"`
+	ID uint `json:"id" uri:"id" form:"id"`
 }
 type RemoveRequest struct {
 	IDList []uint `json:"idList"`

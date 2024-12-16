@@ -5,6 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
+	"blogv2/service/user_server"
 	"blogv2/unitls/email_store"
 	jwts "blogv2/unitls/jwt"
 	"blogv2/unitls/pwd"
@@ -78,5 +79,6 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 		res.FailWithMsg(c, "邮箱登录失败")
 		return
 	}
+	user_server.NewUserServiceApp(user).UserLogin(c)
 	res.SuccessWithData(c, token)
 }

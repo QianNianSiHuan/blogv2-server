@@ -6,6 +6,7 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/qq_service"
+	"blogv2/service/user_server"
 	jwts "blogv2/unitls/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -59,5 +60,6 @@ func (UserApi) QQLoginView(c *gin.Context) {
 		Username: user.Username,
 		Role:     user.Role,
 	})
+	user_server.NewUserServiceApp(user).UserLogin(c)
 	res.SuccessWithData(c, token)
 }

@@ -6,7 +6,6 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/user_server"
-	"blogv2/unitls/email_store"
 	jwts "blogv2/unitls/jwt"
 	"blogv2/unitls/pwd"
 	"fmt"
@@ -32,22 +31,8 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 		res.FailWithMsg(c, "站点未启用邮箱注册")
 		return
 	}
-	value, ok := global.EmailVerifyStore.Load(cr.EmailID)
-	if !ok {
-		res.FailWithMsg(c, "邮箱验证失败")
-		return
-	}
-	info, ok := value.(email_store.EmailStoreInfo)
-	if !ok {
-		res.FailWithMsg(c, "邮箱验证失败")
-		return
-	}
-	if info.Code != cr.EmailCode {
-		global.EmailVerifyStore.Delete(cr.EmailID)
-		res.FailWithMsg(c, "邮箱验证失败")
-		return
-	}
-	global.EmailVerifyStore.Delete(cr.EmailID)
+	_email, _ := c.Get("email")
+	email := _email.(string)
 	hashPwd, err := pwd.GenerateFromPassword(cr.Pwd)
 	if err != nil {
 		res.FailWithMsg(c, "密码转换失败")
@@ -60,7 +45,7 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 		Nickname:       "邮箱用户",
 		RegisterSource: enum.RegisterEmailSourceType,
 		Password:       hashPwd,
-		Email:          info.Email,
+		Email:          email,
 		Role:           enum.UserRole,
 	}
 	err = global.DB.Create(&user).Error

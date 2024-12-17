@@ -13,7 +13,7 @@ import (
 )
 
 type SendEmailRequest struct {
-	Type  int8   `json:"type" binding:"oneof=1 2"` //1注册 2重置密码
+	Type  int8   `json:"type" binding:"oneof=1 2 3"` //1注册 2重置密码 3绑定邮箱
 	Email string `json:"email" binding:"required"`
 }
 type SendEmailResponse struct {
@@ -61,6 +61,14 @@ func (UserApi) SendEmailView(c *gin.Context) {
 			return
 		}
 		err = email_service.SendResetPwdCode(cr.Email, code)
+	case 3:
+		var user models.UserModel
+		err = global.DB.Take(&user, "email = ?", cr.Email).Error
+		if err == nil {
+			res.FailWithMsg(c, "该邮箱已存在")
+			return
+		}
+		err = email_service.SendBindEmailCode(cr.Email, code)
 	}
 	if err != nil {
 		logrus.Errorf("邮件发送失败 %s", err)

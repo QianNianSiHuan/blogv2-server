@@ -24,7 +24,12 @@ func SendResetPwdCode(to string, code string) error {
 	text := fmt.Sprintf("你正在进行密码操作，这是你的验证码 %s 十分钟内有效", code)
 	return SendEmail(to, subject, text)
 }
-
+func SendBindEmailCode(to string, code string) error {
+	em := global.Config.Email
+	subject := fmt.Sprintf("【%s】邮箱绑定", em.SendNickName)
+	text := fmt.Sprintf("你正在进行邮箱绑定操作，这是你的验证码 %s 十分钟内有效", code)
+	return SendEmail(to, subject, text)
+}
 func SendEmail(to, subject, text string) (err error) {
 	em := global.Config.Email
 	e := email.NewEmail()

@@ -2,6 +2,7 @@ package jwts
 
 import (
 	"blogv2/global"
+	"blogv2/models"
 	"blogv2/models/enum"
 	"errors"
 	"fmt"
@@ -21,6 +22,11 @@ type JwtPayLoad struct {
 type CustomClaims struct {
 	JwtPayLoad
 	jwt.RegisteredClaims
+}
+
+func (m CustomClaims) GetUser() (user models.UserModel, err error) {
+	err = global.DB.Take(&user, m.UserID).Error
+	return
 }
 
 // GenToken 创建 Token

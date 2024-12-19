@@ -5,9 +5,9 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
+	jwts "blogv2/unitls/jwt"
 	"blogv2/unitls/maps"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type AdminUserInfoUpdateRequest struct {
@@ -26,12 +26,16 @@ func (UserApi) AdminUserInfoUpdateView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
+	claims := jwts.GetClaims(c)
+	if cr.Role != nil && *cr.UserID != claims.UserID {
+		res.FailWithMsg(c, "不能修改自己的角色")
+		return
+	}
 	userMap, err := maps.StructToMap(cr, "s-u")
 	if err != nil {
 		res.FailWithMsg(c, "用户map转化失败")
 		return
 	}
-	logrus.Info(userMap)
 	var user models.UserModel
 	err = global.DB.Take(&user, cr.UserID).Error
 	if err != nil {

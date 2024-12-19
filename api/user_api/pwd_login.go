@@ -8,6 +8,7 @@ import (
 	jwts "blogv2/unitls/jwt"
 	"blogv2/unitls/pwd"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type PwdLoginRequest struct {
@@ -43,6 +44,7 @@ func (UserApi) PwdLoginView(c *gin.Context) {
 		Username: user.Username,
 		Role:     user.Role,
 	})
+	logrus.Info(user.Role)
 	user_server.NewUserServiceApp(user).UserLogin(c)
 	res.SuccessWithData(c, token)
 }

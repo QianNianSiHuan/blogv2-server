@@ -32,6 +32,10 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 		return
 	}
 	_email, _ := c.Get("email")
+	if _email == nil {
+		res.FailWithMsg(c, "邮箱获取失败")
+		return
+	}
 	email := _email.(string)
 	hashPwd, err := pwd.GenerateFromPassword(cr.Pwd)
 	if err != nil {

@@ -45,7 +45,7 @@ func Run() {
 	case "user":
 		u := flag_user.FlagUser{}
 		switch FlagOptions.Sub {
-		case "creat":
+		case "create":
 			u.Creat()
 			os.Exit(0)
 		}

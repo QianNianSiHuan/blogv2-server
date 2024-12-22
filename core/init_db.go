@@ -25,11 +25,9 @@ func InitDB() *gorm.DB {
 	logrus.Infof("数据库连接成功")
 	if !dc1.Empty() {
 		err = db.Use(dbresolver.Register(dbresolver.Config{
-			// use `db2` as sources, `db3`, `db4` as replicas
-			Sources:  []gorm.Dialector{mysql.Open(dc1.DSN())}, //写
-			Replicas: []gorm.Dialector{mysql.Open(dc.DSN())},  //读
-			// sources/replicas load balancing policy
-			Policy: dbresolver.RandomPolicy{},
+			Sources:  []gorm.Dialector{mysql.Open(dc.DSN())},  //写
+			Replicas: []gorm.Dialector{mysql.Open(dc1.DSN())}, //读
+			Policy:   dbresolver.RandomPolicy{},
 		}))
 		if err != nil {
 			logrus.Fatalf("读写配置错误 %s", err)

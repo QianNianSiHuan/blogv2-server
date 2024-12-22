@@ -16,6 +16,7 @@ func main() {
 	logrus.Infof("当前配置文件为: %s", flags.FlagOptions.File)
 	global.DB = core.InitDB()
 	global.Redis = core.InitRedis()
+	global.ESClient = core.EsConnect()
 	core.InitIPDb()
 	flags.Run()
 	artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)

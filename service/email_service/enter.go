@@ -47,6 +47,5 @@ func SendEmail(to, subject, text string) (err error) {
 		logrus.Errorf(err.Error())
 		return err
 	}
-	fmt.Println("发送成功")
 	return nil
 }

@@ -15,4 +15,5 @@ type Config struct {
 	Ai     Ai     `yaml:"ai"`
 	QiNiu  QiNiu  `yaml:"qiNiu"`
 	Upload Upload `yaml:"upload"`
+	ES     ES     `yaml:"es"`
 }

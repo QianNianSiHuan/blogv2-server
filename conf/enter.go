@@ -1,6 +1,6 @@
 package conf
 
-var confPath = "settings.yaml"
+var confPath = "settings-dev.yaml"
 
 type Config struct {
 	System System `yaml:"system"`

@@ -22,5 +22,4 @@ func main() {
 	artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
 	//启动web程序
 	router.Run()
-
 }

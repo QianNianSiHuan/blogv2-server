@@ -1,40 +1,53 @@
 package es_service
 
 import (
-	"blogv2/artFontFiles"
 	"blogv2/global"
 	"context"
 	"github.com/sirupsen/logrus"
 )
 
-func CreatIndexV2(index, mapping string) {
+// 先删除存在的，在创建索引
+func CreatIndexV2(index, mapping string) error {
 	if ExistsIndex(index) {
-		DeleteIndex(index)
+		err := DeleteIndex(index)
+		if err != nil {
+			return err
+		}
 	}
-	CreatIndex(index, mapping)
+	err := CreatIndex(index, mapping)
+	if err != nil {
+		return err
+	}
+	return nil
 }
-func CreatIndex(index, mapping string) {
+
+// 创建索引
+func CreatIndex(index, mapping string) error {
 	_, err := global.ESClient.
 		CreateIndex(index).
 		BodyString(mapping).Do(context.Background())
 	if err != nil {
-		artFontFiles.OutPutArtisticFont(artFontFiles.FAIL)
 		logrus.Errorf("%s 索引创建失败 %s", index, err)
-		return
+		return err
 	}
-	logrus.Infof("%s 索引穿件成功", index)
+	logrus.Infof("%s 索引创建成功", index)
+	return nil
 }
+
+// 判断索引是否存在
 func ExistsIndex(index string) bool {
 	exists, _ := global.ESClient.IndexExists(index).Do(context.Background())
 	return exists
 }
-func DeleteIndex(index string) {
+
+// 删除索引
+func DeleteIndex(index string) error {
 	_, err := global.ESClient.
 		DeleteIndex(index).Do(context.Background())
 	if err != nil {
-		artFontFiles.OutPutArtisticFont(artFontFiles.FAIL)
 		logrus.Errorf("%s 索引删除失败 %s", index, err)
-		return
+		return err
 	}
 	logrus.Infof("%s 索引删除成功", index)
+	return nil
 }

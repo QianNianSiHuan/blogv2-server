@@ -20,6 +20,7 @@ func ReadConf() (c *conf.Config) {
 	c = new(conf.Config)
 	err = yaml.Unmarshal(byteDate, c)
 	if err != nil {
+		fmt.Printf("读取配置文件为:%s", flags.FlagOptions.File)
 		panic(fmt.Sprintf("yaml格式错误%s", err))
 	}
 	return

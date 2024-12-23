@@ -1,5 +1,7 @@
 package models
 
+import _ "embed"
+
 type ArticleModel struct {
 	Model
 	Title        string    `gorm:"size:32" json:"title"`
@@ -16,4 +18,14 @@ type ArticleModel struct {
 	CollectCount int       `json:"collectCount"`
 	OpenComment  bool      `json:"openComment"` //评论开关
 	Status       int8      `json:"status"`      //状态
+}
+
+//go:embed mappings/article_mapping.json
+var articleMappings string
+
+func (a ArticleModel) Mapping() string {
+	return articleMappings
+}
+func (a ArticleModel) Index() string {
+	return "article_index"
 }

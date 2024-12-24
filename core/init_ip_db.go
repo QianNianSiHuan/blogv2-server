@@ -11,6 +11,7 @@ import (
 var searcher *xdb.Searcher
 
 func InitIPDb() {
+	ProgressbarMsg <- "IP数据库初始化..."
 	var dbPath = "init/ip2region.xdb"
 	_searcher, err := xdb.NewWithFileOnly(dbPath)
 	if err != nil {

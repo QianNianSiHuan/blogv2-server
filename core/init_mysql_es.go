@@ -7,6 +7,7 @@ import (
 )
 
 func InitMysqlEs() {
+	ProgressbarMsg <- "es-数据库同步初始化..."
 	if !global.Config.River.Enable {
 		logrus.Info("es-Mysql同步未启用")
 		return

@@ -18,7 +18,8 @@ const (
 	gray   = 37
 )
 
-type LogFormatter struct{}
+type LogFormatter struct {
+}
 
 // Format 实现Formatter(entry *logrus.Entry) ([]byte, error)接口
 func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
@@ -47,12 +48,17 @@ func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		funcVal := entry.Caller.Function
 		fileVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
 		//自定义输出格式
-		fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m %s %s %s\n", timestamp, levelColor, entry.Level, fileVal, funcVal, entry.Message)
+		msg := fmt.Sprintf("[%s] \x1b[%dm[%s]\x1b[0m %s %s %s\n", timestamp, levelColor, entry.Level, fileVal, funcVal, entry.Message)
+		fmt.Fprint(b, msg)
+
 	} else {
-		fmt.Fprintf(b, "[%s] \x1b[%dm[%s]\x1b[0m %s\n", timestamp, levelColor, entry.Level, entry.Message)
+		msg := fmt.Sprintf("[%s] \x1b[%dm[%s]\x1b[0m %s\n", timestamp, levelColor, entry.Level, entry.Message)
+		fmt.Fprint(b, msg)
+
 	}
 	return b.Bytes(), nil
 }
+
 func InitFile(logPath, appName string) {
 	fileDate := time.Now().Format("2006-01-02")
 	//创建目录

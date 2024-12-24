@@ -15,4 +15,5 @@ type Config struct {
 	QiNiu  QiNiu  `yaml:"qiNiu"`
 	Upload Upload `yaml:"upload"`
 	ES     ES     `yaml:"es"`
+	River  River  `yaml:"river"`
 }

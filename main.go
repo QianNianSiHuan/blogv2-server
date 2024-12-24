@@ -1,7 +1,6 @@
 package main
 
 import (
-	"blogv2/artFontFiles"
 	"blogv2/core"
 	"blogv2/flags"
 	"blogv2/global"
@@ -19,7 +18,8 @@ func main() {
 	global.ESClient = core.EsConnect()
 	core.InitIPDb()
 	flags.Run()
-	artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
+	core.InitMysqlEs()
+	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
 	//启动web程序
 	router.Run()
 }

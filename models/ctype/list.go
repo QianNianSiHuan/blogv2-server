@@ -2,6 +2,7 @@ package ctype
 
 import (
 	"database/sql/driver"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -9,7 +10,12 @@ type List []string
 
 // Scan 实现 sql.Scanner 接口，Scan 将 value 扫描至 Jsonb
 func (j *List) Scan(value interface{}) error {
-	*j = strings.Split(value.(string), ",")
+	val, ok := value.([]uint8)
+	logrus.Info("ok:", ok)
+	if ok {
+		logrus.Info("val:", val)
+		*j = strings.Split(string(val), ",")
+	}
 	return nil
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 func InitRedis() *redis.Client {
-	ProgressbarMsg <- "redis初始化..."
+	//ProgressbarMsg <- "redis初始化..."
 	r := global.Config.Redis
 	redisDB := redis.NewClient(&redis.Options{
 		Addr:     r.Addr,

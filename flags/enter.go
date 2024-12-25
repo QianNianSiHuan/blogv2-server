@@ -44,6 +44,7 @@ func Run() {
 	}
 	if FlagOptions.Debug {
 		global.DB = global.DB.Debug()
+		logrus.SetOutput(os.Stdout)
 		logrus.Warnf("gorm debug模式 已开启")
 		artFontFiles.OutPutArtisticFont(artFontFiles.GIN_DEBUG)
 		artFontFiles.OutPutArtisticFont(artFontFiles.GORM_DEBUG)

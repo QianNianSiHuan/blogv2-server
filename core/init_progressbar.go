@@ -30,7 +30,7 @@ func InitProgressbar(maxNumber int) {
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true),
 		progressbar.OptionSetWidth(25),
-		progressbar.OptionSetDescription("开始读取配置..."),
+		progressbar.OptionSetDescription("[red]开始读取配置...[reset]"),
 		progressbar.OptionSetTheme(progressbar.Theme{
 			Saucer:        "[green]=[reset]",
 			SaucerHead:    "[green]>[reset]",
@@ -45,21 +45,29 @@ func InitProgressbar(maxNumber int) {
 			case str := <-ProgressbarMsg:
 				bar.Add(1)
 				count += 1
-				bar.Describe(fmt.Sprintf("%-10s", str))
+				bar.Describe(fmt.Sprintf("[red]%-10s[reset]", str))
 				time.Sleep(300 * time.Millisecond)
+				continue
 			}
 		}
 	}()
+
 	go func() {
 		for {
 			select {
 			case str := <-ProgressbarLogMsg:
-				bar.Add(1)
-				count += 1
-				progressbar.Bprintf(bar, str)
+				switch str {
+				case "":
+				default:
+					bar.Add(1)
+					count += 1
+					progressbar.Bprintf(bar, str)
+					continue
+				}
 			}
 		}
 	}()
+
 	defer func() {
 		close(ProgressbarMsg)
 		close(ProgressbarLogMsg)
@@ -68,8 +76,9 @@ func InitProgressbar(maxNumber int) {
 
 	select {
 	case <-ProgressbarEndMsg:
+		bar.Describe(fmt.Sprintf("%-10s", "[red]系统加载成功！！![reset]"))
 		logrus.SetOutput(os.Stdout)
-		bar.Describe(fmt.Sprintf("%-10s", "系统加载成功！！！"))
 		bar.Close()
+		return
 	}
 }

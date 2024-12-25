@@ -10,7 +10,7 @@ import (
 )
 
 func InitDB() *gorm.DB {
-	ProgressbarMsg <- "数据库初始化..."
+	//ProgressbarMsg <- "数据库初始化..."
 	if len(global.Config.DB) == 0 {
 		logrus.Fatalf("数据库未配置")
 	}

@@ -1,10 +1,12 @@
 package core
 
 import (
+	"blogv2/flags"
 	"blogv2/global"
 	"bytes"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"path"
 	"time"
@@ -18,8 +20,7 @@ const (
 	gray   = 37
 )
 
-type LogFormatter struct {
-}
+type LogFormatter struct{}
 
 // Format 实现Formatter(entry *logrus.Entry) ([]byte, error)接口
 func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
@@ -80,7 +81,15 @@ func InitFile(logPath, appName string) {
 
 func InitLogrus() {
 	//新建一个实例
-	logrus.SetOutput(os.Stdout)          //设置输出类型
+	var LogOutSide io.Writer
+	LogOutSide = io.Discard
+	if global.Config.Log.Debug {
+		LogOutSide = os.Stdout
+	}
+	if flags.FlagOptions.Debug {
+		LogOutSide = os.Stdout
+	}
+	logrus.SetOutput(LogOutSide)         //设置输出类型
 	logrus.SetReportCaller(true)         //开启返回函数名和行号
 	logrus.SetFormatter(&LogFormatter{}) //设置自己定义的Formatter
 	logrus.SetLevel(logrus.DebugLevel)

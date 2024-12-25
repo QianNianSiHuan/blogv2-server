@@ -9,6 +9,7 @@ import (
 	jwts "blogv2/unitls/jwt"
 	"blogv2/unitls/markdown"
 	"bytes"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 )
@@ -28,6 +29,7 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 	var cr ArticleCreateRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
+		fmt.Println("err:", err)
 		res.FailWithError(c, err)
 		return
 	}

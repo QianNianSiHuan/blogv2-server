@@ -22,6 +22,7 @@ func Run() {
 	CaptchaRouter(nr)
 	BannerRouter(nr)
 	ImageRouter(nr)
+	ArticleRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

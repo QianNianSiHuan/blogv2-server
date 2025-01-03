@@ -1,12 +1,14 @@
 package article_api
 
 import (
+	"blogv2/common"
 	"blogv2/common/res"
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
 	jwts "blogv2/unitls/jwt"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -71,4 +73,81 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 	redis_article.SetCacheLook(cr.ArticleID, true)
 	redis_article.SetUserArticleHistoryCache(cr.ArticleID, claims.UserID)
 	res.SuccessWithMsg(c, "成功")
+}
+
+type ArticleLookListRequest struct {
+	common.PageInfo
+	UserID uint `form:"userID"`
+	Type   int8 `form:"type" binding:"required,oneof=1 2"`
+}
+
+type ArticleLookListResponse struct {
+	ID        uint      `json:"id"`       // 浏览记录的id
+	LookDate  time.Time `json:"lookDate"` // 浏览的时间
+	Title     string    `json:"title"`
+	Cover     string    `json:"cover"`
+	Nickname  string    `json:"nickname"`
+	Avatar    string    `json:"avatar"`
+	UserID    uint      `json:"userID"`
+	ArticleID uint      `json:"articleID"`
+}
+
+func (ArticleApi) ArticleLookListView(c *gin.Context) {
+	var cr ArticleLookListRequest
+	err := c.ShouldBindQuery(&cr)
+	if err != nil {
+		res.FailWithError(c, err)
+		return
+	}
+
+	claims := jwts.GetClaims(c)
+
+	switch cr.Type {
+	case 1:
+		cr.UserID = claims.UserID
+	}
+
+	_list, count, _ := common.ListQuery(models.UserArticleLookHistoryModel{
+		UserID: cr.UserID,
+	}, common.Options{
+		PageInfo: cr.PageInfo,
+		Preloads: []string{"UserModel", "ArticleModel"},
+	})
+
+	var list = make([]ArticleLookListResponse, 0)
+	for _, model := range _list {
+		list = append(list, ArticleLookListResponse{
+			ID:        model.ID,
+			LookDate:  model.CreatedAt,
+			Title:     model.ArticleModel.Title,
+			Cover:     model.ArticleModel.Cover,
+			Nickname:  model.UserModel.Nickname,
+			Avatar:    model.UserModel.Avatar,
+			UserID:    model.UserID,
+			ArticleID: model.ArticleID,
+		})
+	}
+
+	res.SuccessWithList(c, list, count)
+}
+
+func (ArticleApi) ArticleLookRemoveView(c *gin.Context) {
+	var cr models.RemoveRequest
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		res.FailWithError(c, err)
+		return
+	}
+	claims := jwts.GetClaims(c)
+	var list []models.UserArticleLookHistoryModel
+	global.DB.Find(&list, "user_id = ? and id in ?", claims.UserID, cr.IDList)
+
+	if len(list) > 0 {
+		err := global.DB.Delete(&list).Error
+		if err != nil {
+			res.FailWithMsg(c, "足迹删除失败")
+			return
+		}
+	}
+	res.SuccessWithMsg(c, fmt.Sprintf("删除足迹成功 共删除%d条", len(list)))
 }

@@ -5,6 +5,7 @@ import (
 	"blogv2/flags"
 	"blogv2/global"
 	"blogv2/router"
+	"blogv2/service/cron_service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,6 +23,8 @@ func main() {
 	core.InitMysqlEs()
 	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
 	//core.ProgressbarEndMsg <- true
+	//定时任务
+	cron_service.Cron()
 	//启动web程序
 	router.Run()
 }

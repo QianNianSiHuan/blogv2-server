@@ -36,6 +36,9 @@ func init() {
 			label = field.Name
 		}
 		name := field.Tag.Get("json")
+		if name == "" {
+			name = field.Tag.Get("form")
+		}
 		return fmt.Sprintf("%s---%s", name, label)
 	})
 }

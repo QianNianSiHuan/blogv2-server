@@ -1,9 +1,12 @@
 package models
 
 import (
+	"blogv2/global"
 	"blogv2/models/ctype"
 	"blogv2/models/enum"
 	_ "embed"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type ArticleModel struct {
@@ -32,4 +35,29 @@ func (a ArticleModel) Mapping() string {
 }
 func (a ArticleModel) Index() string {
 	return "article_index"
+}
+
+func (a *ArticleModel) BeforeDelete(tx *gorm.DB) (err error) {
+	// 评论
+	var commentList []CommentModel
+	global.DB.Find(&commentList, "article_id = ?", a.ID).Delete(&commentList)
+	// 点赞
+	var diggList []ArticleDiggModel
+	global.DB.Find(&diggList, "article_id = ?", a.ID).Delete(&diggList)
+	// 收藏
+	var collectList []UserArticleCollectModel
+	global.DB.Find(&collectList, "article_id = ?", a.ID).Delete(&collectList)
+	// 置顶
+	var topList []UserTopArticleModel
+	global.DB.Find(&topList, "article_id = ?", a.ID).Delete(&topList)
+	// 浏览
+	var lookList []UserArticleLookHistoryModel
+	global.DB.Find(&lookList, "article_id = ?", a.ID).Delete(&lookList)
+
+	logrus.Infof("删除关联评论 %d 条", len(commentList))
+	logrus.Infof("删除关联点赞 %d 条", len(diggList))
+	logrus.Infof("删除关联收藏 %d 条", len(collectList))
+	logrus.Infof("删除关联置顶 %d 条", len(topList))
+	logrus.Infof("删除关联浏览 %d 条", len(lookList))
+	return
 }

@@ -13,7 +13,7 @@ import (
 // 用户点赞
 func (ArticleApi) ArticleDiggView(c *gin.Context) {
 	var cr models.IDRequest
-	err := c.BindUri(&cr)
+	err := c.ShouldBindUri(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
 		return

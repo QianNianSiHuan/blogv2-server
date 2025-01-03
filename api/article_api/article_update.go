@@ -13,7 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ArticleCreateRequest struct {
+type ArticleUpdateRequest struct {
+	ID          uint               `json:"ID" binding:"required"`
 	Title       string             `json:"title" binding:"required"`
 	Abstract    string             `json:"abstract"`
 	Content     string             `json:"content" binding:"required"`
@@ -24,8 +25,8 @@ type ArticleCreateRequest struct {
 	Status      enum.ArticleStatus `json:"status" binding:"required,oneof=1 2"`
 }
 
-func (ArticleApi) ArticleCreateView(c *gin.Context) {
-	var cr ArticleCreateRequest
+func (ArticleApi) ArticleUpdateView(c *gin.Context) {
+	var cr ArticleUpdateRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		fmt.Println("err:", err)
@@ -37,8 +38,15 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 		res.FailWithMsg(c, "用户不存在")
 		return
 	}
-	if global.Config.Site.SiteInfo.Mode == 2 && user.Role != 1 {
-		res.FailWithMsg(c, "博客模式下,普通用户不能发文章")
+	//找文章
+	var article models.ArticleModel
+	err = global.DB.Take(&article, cr.ID).Error
+	if err != nil {
+		res.FailWithMsg(c, "文章不存在")
+		return
+	}
+	if article.UserID != user.ID {
+		res.FailWithMsg(c, "文章归属出错")
 		return
 	}
 	//判断分类ID是否自己创建的
@@ -63,25 +71,25 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 		cr.Abstract = doc
 	}
 
-	//正文内容图片转存
-	var article = models.ArticleModel{
-		Title:       cr.Title,
-		Abstract:    cr.Abstract,
-		Content:     cr.Content,
-		UserID:      user.ID,
-		CategoryID:  cr.CategoryID,
-		TagList:     cr.TagList,
-		Cover:       cr.Cover,
-		OpenComment: cr.OpenComment,
-		Status:      cr.Status,
+	mps := map[string]any{
+		"title":        cr.Title,
+		"abstract":     cr.Abstract,
+		"content":      cr.Content,
+		"category_id":  cr.CategoryID,
+		"tag_list":     cr.TagList,
+		"cover":        cr.Cover,
+		"open_comment": cr.OpenComment,
 	}
-	if global.Config.Site.Article.NoExamine && cr.Status == 2 {
-		article.Status = enum.ArticleStatusPublished
+	if article.Status == enum.ArticleStatusPublished && !global.Config.Site.Article.NoExamine {
+		// 如果是已发布的文章，进行编辑，那么就要改成待审核
+		mps["status"] = enum.ArticleStatusExamine
 	}
-	err = global.DB.Create(&article).Error
+
+	err = global.DB.Model(&article).Updates(mps).Error
 	if err != nil {
-		res.FailWithMsg(c, "文章创建失败")
+		res.FailWithMsg(c, "更新失败")
 		return
 	}
-	res.SuccessWithMsg(c, "文章创建成功")
+	//正文内容图片转存
+	res.SuccessWithMsg(c, "文章更新成功")
 }

@@ -19,6 +19,7 @@ type UserDetailResponse struct {
 	Abstract       string                  `json:"abstract"`
 	RegisterSource enum.RegisterSourceType `json:"registerSource"` // 注册来源
 	CodeAge        int                     `json:"codeAge"`        // 码龄
+	Role           enum.RoleType           `json:"role"`
 	models.UserConfModel
 }
 
@@ -30,7 +31,7 @@ func (UserApi) UserDetailView(c *gin.Context) {
 		res.FailWithMsg(c, "用户不存在")
 		return
 	}
-	
+
 	var data = UserDetailResponse{
 		ID:             user.ID,
 		CreatedAt:      user.CreatedAt,
@@ -39,6 +40,7 @@ func (UserApi) UserDetailView(c *gin.Context) {
 		Avatar:         user.Avatar,
 		Abstract:       user.Abstract,
 		RegisterSource: user.RegisterSource,
+		Role:           user.Role,
 		CodeAge:        user.CodeAge(),
 	}
 	if user.UserConfModel != nil {

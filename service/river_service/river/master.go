@@ -6,7 +6,7 @@ import (
 	"github.com/pingcap/errors"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go/ioutil2"
-	"github.com/siddontang/go/log"
+	"github.com/sirupsen/logrus"
 	"os"
 	"path"
 	"sync"
@@ -50,7 +50,7 @@ func loadMasterInfo(dataDir string) (*masterInfo, error) {
 }
 
 func (m *masterInfo) Save(pos mysql.Position) error {
-	log.Infof("save position %s", pos)
+	logrus.Infof("save position %s", pos)
 
 	m.Lock()
 	defer m.Unlock()
@@ -75,7 +75,7 @@ func (m *masterInfo) Save(pos mysql.Position) error {
 
 	var err error
 	if err = ioutil2.WriteFileAtomic(m.filePath, buf.Bytes(), 0644); err != nil {
-		log.Errorf("canal save master info to file %s err %v", m.filePath, err)
+		logrus.Errorf("canal save master info to file %s err %v", m.filePath, err)
 	}
 
 	return errors.Trace(err)

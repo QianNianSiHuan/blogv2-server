@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/pingcap/errors"
 	"github.com/siddontang/go-mysql/canal"
-	"github.com/siddontang/go/log"
+	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 	"sync"
@@ -262,7 +262,7 @@ func (r *River) prepareRule() error {
 		}
 
 		if len(rule.TableInfo.PKColumns) == 0 {
-			log.Errorf("ignored table without a primary key: %s\n", rule.TableInfo.Name)
+			logrus.Errorf("ignored table without a primary key: %s\n", rule.TableInfo.Name)
 		} else {
 			rules[key] = rule
 		}
@@ -283,7 +283,7 @@ func (r *River) Run() error {
 
 	pos := r.master.Position()
 	if err := r.canal.RunFrom(pos); err != nil {
-		log.Errorf("start canal err %v", err)
+		logrus.Errorf("start canal err %v", err)
 		return errors.Trace(err)
 	}
 
@@ -297,7 +297,7 @@ func (r *River) Ctx() context.Context {
 
 // Close closes the River
 func (r *River) Close() {
-	log.Infof("closing river")
+	logrus.Infof("closing river")
 
 	r.cancel()
 

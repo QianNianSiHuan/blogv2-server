@@ -11,80 +11,85 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryCreateRequest struct {
-	ID    uint   `json:"id"`
-	Title string `json:"title" binding:"required,max=32"`
+type CollectCreateRequest struct {
+	ID       uint   `json:"id"`
+	Title    string `json:"title" binding:"required,max=32"`
+	Abstract string `json:"abstract"`
+	Cover    string `json:"cover"`
 }
 
-func (ArticleApi) CategoryCreateView(c *gin.Context) {
-	var cr CategoryCreateRequest
+func (ArticleApi) CollectCreateView(c *gin.Context) {
+	var cr CollectCreateRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
 		return
 	}
-
 	claims := jwts.GetClaims(c)
-	var model models.CategoryModel
+	var model models.CollectModel
 	if cr.ID == 0 {
 		// 创建
 		err := global.DB.Take(&model, "user_id = ? and title = ?", claims.UserID, cr.Title).Error
 		if err == nil {
-			res.FailWithMsg(c, "分类名称重复")
+			res.FailWithMsg(c, "收藏夹名称重复")
 			return
 		}
 
-		err = global.DB.Create(&models.CategoryModel{
-			Title:  cr.Title,
-			UserID: claims.UserID,
+		err = global.DB.Create(&models.CollectModel{
+			Title:    cr.Title,
+			UserID:   claims.UserID,
+			Abstract: cr.Abstract,
+			Cover:    cr.Cover,
 		}).Error
 		if err != nil {
-			res.FailWithMsg(c, "创建分类错误")
+			res.FailWithMsg(c, "创建收藏夹失败")
 			return
 		}
 
-		res.SuccessWithMsg(c, "创建分类成功")
+		res.SuccessWithMsg(c, "创建收藏夹成功")
 		return
 	}
 
 	err = global.DB.Take(&model, "user_id = ? and id = ?", claims.UserID, cr.ID).Error
 	if err != nil {
-		res.FailWithMsg(c, "分类不存在")
+		res.FailWithMsg(c, "收藏夹不存在")
 		return
 	}
 
-	err = global.DB.Model(&model).Update("title", cr.Title).Error
-
+	err = global.DB.Model(&model).Updates(map[string]any{
+		"title":    cr.Title,
+		"abstract": cr.Abstract,
+		"cover":    cr.Cover,
+	}).Error
 	if err != nil {
-		res.FailWithMsg(c, "更新分类错误")
+		res.FailWithMsg(c, "更新收藏夹错误")
 		return
 	}
 
-	res.SuccessWithMsg(c, "更新分类成功")
+	res.SuccessWithMsg(c, "更新收藏夹成功")
 	return
 }
 
-type CategoryListRequest struct {
+type CollectListRequest struct {
 	common.PageInfo
 	UserID uint `form:"userID"`
 	Type   int8 `form:"type" binding:"required,oneof=1 2 3"` // 1 查自己 2 查别人 3 后台
 }
 
-type CategoryListResponse struct {
-	models.CategoryModel
+type CollectListResponse struct {
+	models.CollectModel
 	ArticleCount int    `json:"articleCount"`
 	Nickname     string `json:"nickname,omitempty"`
 	Avatar       string `json:"avatar,omitempty"`
 }
 
-func (ArticleApi) CategoryListView(c *gin.Context) {
-	var cr CategoryListRequest
+func (ArticleApi) CollectListView(c *gin.Context) {
+	var cr CollectListRequest
 	err := c.ShouldBindQuery(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
 		return
 	}
-
 	var preload = []string{"ArticleList"}
 	switch cr.Type {
 	case 1:
@@ -108,35 +113,35 @@ func (ArticleApi) CategoryListView(c *gin.Context) {
 		preload = append(preload, "UserModel")
 	}
 
-	_list, count, err := common.ListQuery(models.CategoryModel{
+	_list, count, _ := common.ListQuery(models.CollectModel{
 		UserID: cr.UserID,
 	}, common.Options{
 		PageInfo: cr.PageInfo,
 		Likes:    []string{"title"},
 		Preloads: preload,
 	})
-	if err != nil {
-		res.FailWithMsg(c, "列表查询出错")
-		return
-	}
-	var list = make([]CategoryListResponse, 0)
 
+	var list = make([]CollectListResponse, 0)
 	for _, i2 := range _list {
-		fmt.Println(i2.UserModel)
-		list = append(list, CategoryListResponse{
-			CategoryModel: i2,
-			ArticleCount:  len(i2.ArticleList),
-			Nickname:      i2.UserModel.Nickname,
-			Avatar:        i2.UserModel.Avatar,
+		list = append(list, CollectListResponse{
+			CollectModel: i2,
+			ArticleCount: len(i2.ArticleList),
+			Nickname:     i2.UserModel.Nickname,
+			Avatar:       i2.UserModel.Avatar,
 		})
 	}
 
 	res.SuccessWithList(c, list, count)
 }
-func (ArticleApi) CategoryRemoveView(c *gin.Context) {
+
+func (ArticleApi) CollectRemoveView(c *gin.Context) {
 	var cr models.RemoveRequest
 	err := c.ShouldBindJSON(&cr)
-	var list []models.CategoryModel
+	if err != nil {
+		res.FailWithError(c, err)
+		return
+	}
+	var list []models.CollectModel
 	query := global.DB.Where("id in ?", cr.IDList)
 	claims := jwts.GetClaims(c)
 	if claims.Role != enum.AdminRole {
@@ -146,14 +151,14 @@ func (ArticleApi) CategoryRemoveView(c *gin.Context) {
 	global.DB.Where(query).Find(&list)
 
 	if len(list) > 0 {
-		err = global.DB.Delete(&list).Error
+		err := global.DB.Delete(&list).Error
 		if err != nil {
 			res.FailWithMsg(c, "删除分类失败")
 			return
 		}
 	}
 
-	msg := fmt.Sprintf("删除分类成功 共删除%d条", len(list))
+	msg := fmt.Sprintf("删除收藏夹成功 共删除%d条", len(list))
 
 	res.SuccessWithMsg(c, msg)
 }

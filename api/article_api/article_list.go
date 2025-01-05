@@ -23,8 +23,11 @@ type ArticleListRequest struct {
 
 type ArticleListResponse struct {
 	models.ArticleModel
-	UserTop  bool `json:"userTop"`  //用户置顶
-	AdminTop bool `json:"adminTop"` //管理员置顶
+	UserTop       bool    `json:"userTop"`       //用户置顶
+	AdminTop      bool    `json:"adminTop"`      //管理员置顶
+	CategoryTitle *string `json:"categoryTitle"` //分类标签
+	UserNickname  string  `json:"userNickname"`
+	UserAvatar    string  `json:"userAvatar"`
 }
 
 func (ArticleApi) ArticleListView(c *gin.Context) {
@@ -100,6 +103,7 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		Likes:        []string{"title"},
 		PageInfo:     cr.PageInfo,
 		DefaultOrder: "created_at desc",
+		Preloads:     []string{"CategoryModel", "UserModel"},
 	}
 
 	if len(topArticleIDList) > 0 {
@@ -121,11 +125,18 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		model.DiggCount = model.DiggCount + diggMap[model.ID]
 		model.CollectCount = model.CollectCount + collectMap[model.ID]
 		model.LookCount = model.LookCount + lookMap[model.ID]
-		list = append(list, ArticleListResponse{
+		data := ArticleListResponse{
 			ArticleModel: model,
 			UserTop:      userTopMap[model.ID],
 			AdminTop:     adminTopMap[model.ID],
-		})
+			UserNickname: model.UserModel.Nickname,
+			UserAvatar:   model.UserModel.Avatar,
+		}
+		if model.CategoryModel != nil {
+			data.CategoryTitle = &model.CategoryModel.Title
+		}
+		list = append(list, data)
+
 	}
 	res.SuccessWithList(c, list, count)
 }

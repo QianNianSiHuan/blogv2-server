@@ -13,7 +13,7 @@ func FlagDB() {
 		&models.ArticleModel{},
 		&models.ArticleDiggModel{},
 		&models.CategoryModel{},
-		&models.CollectModels{},
+		&models.CollectModel{},
 		&models.UserArticleCollectModel{},
 		&models.UserArticleLookHistoryModel{},
 		&models.CommentModel{},

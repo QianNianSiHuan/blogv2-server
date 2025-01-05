@@ -12,7 +12,7 @@ func ArticleRouter(r *gin.RouterGroup) {
 	r.PUT("article", middleware.AuthMiddleware, app.ArticleUpdateView)
 	r.GET("article", app.ArticleListView)
 	r.GET("article/:id", app.ArticleDetailView)
-	
+
 	r.DELETE("article/:id", middleware.AuthMiddleware, app.ArticleRemoveUserView)
 	r.DELETE("article", middleware.AdminMiddleware, app.ArticleRemoveView)
 
@@ -24,4 +24,12 @@ func ArticleRouter(r *gin.RouterGroup) {
 	r.POST("article/history", app.ArticleLookView)
 	r.GET("article/history", middleware.AuthMiddleware, app.ArticleLookListView)
 	r.DELETE("article/history", middleware.AuthMiddleware, app.ArticleLookRemoveView)
+
+	r.POST("category", middleware.AuthMiddleware, app.CategoryCreateView)
+	r.GET("category", app.CategoryListView)
+	r.DELETE("category", middleware.AuthMiddleware, app.CategoryRemoveView)
+
+	r.POST("collect", middleware.AuthMiddleware, app.CollectCreateView)
+	r.GET("collect", app.CollectListView)
+	r.DELETE("collect", middleware.AuthMiddleware, app.CollectRemoveView)
 }

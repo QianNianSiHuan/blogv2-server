@@ -30,7 +30,7 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 		res.FailWithMsg(c, "文章不存在")
 		return
 	}
-	var collectModel models.CollectModels
+	var collectModel models.CollectModel
 	claims := jwts.GetClaims(c)
 	if cr.CollectID == 0 {
 		// 是默认收藏夹

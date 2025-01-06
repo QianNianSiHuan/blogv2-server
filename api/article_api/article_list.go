@@ -120,11 +120,13 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	collectMap := redis_article.GetAllCacheCollect()
 	diggMap := redis_article.GetAllCacheDigg()
 	lookMap := redis_article.GetAllCacheLook()
+	commentMap := redis_article.GetAllCacheComment()
 	for _, model := range _list {
 		model.Content = ""
 		model.DiggCount = model.DiggCount + diggMap[model.ID]
 		model.CollectCount = model.CollectCount + collectMap[model.ID]
 		model.LookCount = model.LookCount + lookMap[model.ID]
+		model.CommentCount = model.CommentCount + commentMap[model.ID]
 		data := ArticleListResponse{
 			ArticleModel: model,
 			UserTop:      userTopMap[model.ID],

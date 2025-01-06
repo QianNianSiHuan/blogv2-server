@@ -3,6 +3,7 @@ package comment_service
 import (
 	"blogv2/global"
 	"blogv2/models"
+	"blogv2/service/redis_service/redis_comment"
 	"time"
 )
 
@@ -73,11 +74,16 @@ type CommentResponse struct {
 }
 
 func GetCommentTreeV4(id uint) (res *CommentResponse) {
+	return getCommentTreeV4(id, 1)
+}
+
+func getCommentTreeV4(id uint, line int) (res *CommentResponse) {
 	model := &models.CommentModel{
 		Model: models.Model{ID: id},
 	}
 
 	global.DB.Preload("UserModel").Preload("SubCommentList").Take(model)
+
 	res = &CommentResponse{
 		ID:           model.ID,
 		CreatedAt:    model.CreatedAt,
@@ -87,12 +93,30 @@ func GetCommentTreeV4(id uint) (res *CommentResponse) {
 		UserAvatar:   model.UserModel.Avatar,
 		ArticleID:    model.ArticleID,
 		ParentID:     model.ParentID,
-		DiggCount:    model.DiggCount,
-		ApplyCount:   0,
+		DiggCount:    model.DiggCount + redis_comment.GetCacheDigg(model.ID),
+		ApplyCount:   redis_comment.GetCacheApply(model.ID),
 		SubComments:  make([]*CommentResponse, 0),
 	}
+	if line >= global.Config.Site.Article.CommentLine {
+		return
+	}
 	for _, commentModel := range model.SubCommentList {
-		res.SubComments = append(res.SubComments, GetCommentTreeV4(commentModel.ID))
+		res.SubComments = append(res.SubComments, getCommentTreeV4(commentModel.ID, line+1))
+	}
+	return
+}
+
+// GetCommentOneDimensional 评论一维化
+func GetCommentOneDimensional(id uint) (list []models.CommentModel) {
+	model := models.CommentModel{
+		Model: models.Model{ID: id},
+	}
+
+	global.DB.Preload("SubCommentList").Take(&model)
+	list = append(list, model)
+	for _, commentModel := range model.SubCommentList {
+		subList := GetCommentOneDimensional(commentModel.ID)
+		list = append(list, subList...)
 	}
 	return
 }

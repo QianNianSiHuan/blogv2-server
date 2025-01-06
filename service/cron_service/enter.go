@@ -15,4 +15,8 @@ func Cron() {
 	if err != nil {
 		logrus.Errorf("EntryID: %d , err: %s", EntryID, err)
 	}
+	EntryID, err = crontab.AddFunc("0 0  3 * * *", SyncArticle)
+	if err != nil {
+		logrus.Errorf("EntryID: %d , err: %s", EntryID, err)
+	}
 }

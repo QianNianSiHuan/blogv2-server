@@ -59,11 +59,12 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	collectCount := redis_article.GetCacheCollect(article.ID)
 	diggCount := redis_article.GetCacheDigg(article.ID)
 	lookCount := redis_article.GetCacheLook(article.ID)
+	CommentCount := redis_article.GetCacheComment(article.ID)
 
 	article.DiggCount = article.DiggCount + diggCount
 	article.CollectCount = article.CollectCount + collectCount
 	article.LookCount = article.LookCount + lookCount
-
+	article.CommentCount = article.CommentCount + CommentCount
 	res.SuccessWithData(c, ArticleDetailResponse{
 		ArticleModel: article,
 		Username:     article.UserModel.Username,

@@ -32,4 +32,7 @@ func ArticleRouter(r *gin.RouterGroup) {
 	r.POST("collect", middleware.AuthMiddleware, app.CollectCreateView)
 	r.GET("collect", app.CollectListView)
 	r.DELETE("collect", middleware.AuthMiddleware, app.CollectRemoveView)
+
+	r.GET("category/options", middleware.AuthMiddleware, app.CategoryOptionsView)
+
 }

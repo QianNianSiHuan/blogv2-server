@@ -12,4 +12,5 @@ type CommentModel struct {
 	SubCommentList []*CommentModel `gorm:"foreignKey:ParentID" json:"-"` //子评论列表
 	RootParentID   *uint           `json:"rootParentID"`
 	DiggCount      int             `json:"diggCount"`
+	ApplyCount     int             `json:"applyCount"` //评论回复数
 }

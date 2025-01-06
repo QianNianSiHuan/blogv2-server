@@ -15,32 +15,44 @@ const (
 	articleCacheLook    articleCacheType = "article_look_key"
 	articleCacheDigg    articleCacheType = "article_digg_key"
 	articleCacheCollect articleCacheType = "article_collect_key"
+	articleCacheComment articleCacheType = "article_comment_key"
 )
 
 // set 修改指定类型的文章计数（增加或减少）。
-func set(t articleCacheType, articleID uint, increase bool) {
+func set(t articleCacheType, articleID uint, n int) {
 	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(articleID))).Int()
-	if !increase {
-		num--
-	} else {
-		num++
-	}
+	num += n
 	global.Redis.HSet(string(t), strconv.Itoa(int(articleID)), num)
 }
 
 // SetCacheLook 设置文章的查看次数。
 func SetCacheLook(articleID uint, increase bool) {
-	set(articleCacheLook, articleID, increase)
+	var n = 1
+	if !increase {
+		n = -1
+	}
+	set(articleCacheLook, articleID, n)
 }
 
 // SetCacheDigg 设置文章的点赞数。
 func SetCacheDigg(articleID uint, increase bool) {
-	set(articleCacheDigg, articleID, increase)
+	var n = 1
+	if !increase {
+		n = -1
+	}
+	set(articleCacheDigg, articleID, n)
 }
 
 // SetCacheCollect 设置文章的收藏数。
 func SetCacheCollect(articleID uint, increase bool) {
-	set(articleCacheCollect, articleID, increase)
+	var n = 1
+	if !increase {
+		n = -1
+	}
+	set(articleCacheCollect, articleID, n)
+}
+func SetCacheComment(articleID uint, n int) {
+	set(articleCacheComment, articleID, n)
 }
 
 // get 获取指定类型的文章计数。
@@ -62,6 +74,9 @@ func GetCacheDigg(articleID uint) int {
 // GetCacheCollect 获取文章的收藏数。
 func GetCacheCollect(articleID uint) int {
 	return get(articleCacheCollect, articleID)
+}
+func GetCacheComment(articleID uint) int {
+	return get(articleCacheComment, articleID)
 }
 
 // GetAll 获取所有文章的指定类型计数。
@@ -92,6 +107,9 @@ func GetAllCacheDigg() (mps map[uint]int) {
 // GetAllCacheCollect 获取所有文章的收藏数。
 func GetAllCacheCollect() (mps map[uint]int) {
 	return GetAll(articleCacheCollect)
+}
+func GetAllCacheComment() (mps map[uint]int) {
+	return GetAll(articleCacheComment)
 }
 
 func SetUserArticleHistoryCache(articleID, userID uint) {

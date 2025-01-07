@@ -3,7 +3,7 @@ package image_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
-	"blogv2/unitls/hashTool"
+	"blogv2/utils/hashTool"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"

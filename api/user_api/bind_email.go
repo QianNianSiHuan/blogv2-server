@@ -3,7 +3,7 @@ package user_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
 

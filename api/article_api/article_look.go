@@ -7,7 +7,7 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

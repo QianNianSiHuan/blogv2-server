@@ -6,7 +6,7 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/email_service"
-	"blogv2/unitls/email_store"
+	"blogv2/utils/email_store"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"github.com/sirupsen/logrus"

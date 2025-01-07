@@ -5,7 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/service/redis_service/redis_comment"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
 

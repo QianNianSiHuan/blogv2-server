@@ -6,9 +6,9 @@ import (
 	"blogv2/models"
 	"blogv2/models/ctype"
 	"blogv2/models/enum"
-	jwts "blogv2/unitls/jwt"
-	"blogv2/unitls/markdown"
-	"blogv2/unitls/xss"
+	jwts "blogv2/utils/jwt"
+	"blogv2/utils/markdown"
+	"blogv2/utils/xss"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )

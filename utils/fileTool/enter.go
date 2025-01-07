@@ -2,7 +2,7 @@ package fileTool
 
 import (
 	"blogv2/global"
-	"blogv2/unitls"
+	"blogv2/utils"
 	"errors"
 	"strings"
 )
@@ -14,7 +14,7 @@ func ImageSuffixJudge(filename string) (suffix string, err error) {
 		return
 	}
 	suffix = _list[len(_list)-1]
-	if !unitls.InList(suffix, global.Config.Upload.WhiteList) {
+	if !utils.InList(suffix, global.Config.Upload.WhiteList) {
 		err = errors.New("文件非法")
 		return
 	}

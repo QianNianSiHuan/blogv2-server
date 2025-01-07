@@ -5,7 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
-	"blogv2/unitls/pwd"
+	"blogv2/utils/pwd"
 	"github.com/gin-gonic/gin"
 )
 

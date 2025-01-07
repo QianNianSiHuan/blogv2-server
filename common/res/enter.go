@@ -1,7 +1,7 @@
 package res
 
 import (
-	"blogv2/unitls/vaildate"
+	"blogv2/utils/vaildate"
 	"github.com/gin-gonic/gin"
 )
 

@@ -7,7 +7,7 @@ import (
 	"blogv2/models/enum"
 	"blogv2/service/qq_service"
 	"blogv2/service/user_server"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"

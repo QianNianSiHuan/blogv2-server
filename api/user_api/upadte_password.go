@@ -4,8 +4,8 @@ import (
 	"blogv2/common/res"
 	"blogv2/global"
 	"blogv2/models/enum"
-	jwts "blogv2/unitls/jwt"
-	"blogv2/unitls/pwd"
+	jwts "blogv2/utils/jwt"
+	"blogv2/utils/pwd"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )

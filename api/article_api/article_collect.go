@@ -6,7 +6,8 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -93,4 +94,23 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 	//TODO:收藏数同步缓存
 	global.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count - 1"))
 	return
+}
+
+func (ArticleApi) ArticleCollectPatchRemoveView(c *gin.Context) {
+	var cr models.RemoveRequest
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		res.FailWithError(c, err)
+		return
+	}
+	claims := jwts.GetClaims(c)
+	var userConfList []models.UserArticleCollectModel
+
+	global.DB.Preload("CollectModel").Find(&userConfList, "id in ? and user_id = ?", cr.IDList, claims.UserID)
+	var collectTitle string
+	if len(userConfList) > 0 {
+		collectTitle = userConfList[0].CollectModel.Title
+		global.DB.Delete(&userConfList)
+	}
+	res.SuccessWithMsg(c, fmt.Sprintf("成功将 %d 篇文章, 移出 %s 收藏夹", len(userConfList), collectTitle))
 }

@@ -1,7 +1,7 @@
 package maps_test
 
 import (
-	"blogv2/unitls/maps"
+	"blogv2/utils/maps"
 	"fmt"
 	"testing"
 )

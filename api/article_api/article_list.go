@@ -7,8 +7,8 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
-	jwts "blogv2/unitls/jwt"
-	"blogv2/unitls/sql"
+	jwts "blogv2/utils/jwt"
+	"blogv2/utils/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +19,7 @@ type ArticleListRequest struct {
 	UserID     uint               `form:"userID"`
 	CategoryID *uint              `form:"categoryID"`
 	Status     enum.ArticleStatus `form:"status"`
+	CollectID  uint               `form:"collectID"`
 }
 
 type ArticleListResponse struct {
@@ -61,6 +62,23 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 		}
 		cr.Status = 0
 		cr.Order = ""
+		if cr.CollectID != 0 {
+			//如果传了收藏夹的id,需要判断
+			if cr.UserID == 0 {
+				res.FailWithMsg(c, "清传入用户ID")
+				return
+			}
+			var userConf models.UserConfModel
+			err = global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
+			if err != nil {
+				res.FailWithMsg(c, "用户不存在")
+				return
+			}
+			if !userConf.OpenCollect {
+				res.FailWithMsg(c, "用户未开启我的收藏")
+				return
+			}
+		}
 	case 2:
 		// 查自己的
 		claims, err := jwts.ParseTokenByGin(c)

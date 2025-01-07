@@ -1,7 +1,7 @@
 package core
 
 import (
-	ipUnitls "blogv2/unitls/ip"
+	ipUnitls "blogv2/utils/ip"
 	"fmt"
 	"github.com/lionsoul2014/ip2region/binding/golang/xdb"
 	"github.com/sirupsen/logrus"

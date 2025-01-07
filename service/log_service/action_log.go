@@ -5,7 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"bytes"
 	"encoding/json"
 	"fmt"

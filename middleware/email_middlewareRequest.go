@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"blogv2/common/res"
-	"blogv2/unitls/email_store"
+	"blogv2/utils/email_store"
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

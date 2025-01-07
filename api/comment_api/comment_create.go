@@ -8,7 +8,7 @@ import (
 	"blogv2/service/comment_service"
 	"blogv2/service/redis_service/redis_article"
 	"blogv2/service/redis_service/redis_comment"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
 

@@ -2,8 +2,8 @@ package qiNiu_service
 
 import (
 	"blogv2/global"
-	"blogv2/unitls/fileTool"
-	"blogv2/unitls/hashTool"
+	"blogv2/utils/fileTool"
+	"blogv2/utils/hashTool"
 	"context"
 	"fmt"
 	"github.com/google/uuid"

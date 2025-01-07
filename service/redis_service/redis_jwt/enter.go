@@ -2,7 +2,7 @@ package redis_jwt
 
 import (
 	"blogv2/global"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

@@ -6,7 +6,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -100,6 +100,16 @@ func (ArticleApi) CollectListView(c *gin.Context) {
 		}
 		cr.UserID = claims.UserID
 	case 2:
+		var userConf models.UserConfModel
+		err = global.DB.Take(&userConf, "user_id =?", cr.UserID).Error
+		if err != nil {
+			res.FailWithMsg(c, "用户不存在")
+			return
+		}
+		if !userConf.OpenCollect {
+			res.FailWithMsg(c, "用户未开启收藏")
+			return
+		}
 	case 3:
 		claims, err := jwts.ParseTokenByGin(c)
 		if err != nil {

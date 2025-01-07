@@ -5,8 +5,8 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/service/user_server"
-	jwts "blogv2/unitls/jwt"
-	"blogv2/unitls/pwd"
+	jwts "blogv2/utils/jwt"
+	"blogv2/utils/pwd"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )

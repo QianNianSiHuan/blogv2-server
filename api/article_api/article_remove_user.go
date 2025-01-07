@@ -4,7 +4,7 @@ import (
 	"blogv2/common/res"
 	"blogv2/global"
 	"blogv2/models"
-	jwts "blogv2/unitls/jwt"
+	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )

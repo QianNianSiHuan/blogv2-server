@@ -41,7 +41,7 @@ func (ImageApi) ImageUploadView(c *gin.Context) {
 	hashString := hashTool.Md5(byteData)
 
 	var model models.ImageModel
-	err = global.DB.Take(&model, "hashTool = ?", hashString).Error
+	err = global.DB.Take(&model, "hash = ?", hashString).Error
 	if err == nil {
 		//找到了
 		logrus.Infof("上传文件重复 %s <==> %s %s", filename, model.Filename, hashString)
@@ -68,5 +68,5 @@ func (ImageApi) ImageUploadView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
-	res.Success(c, model.WebPath(), "图片上传成功")
+	res.Success(c, "图片上传成功", model.WebPath())
 }

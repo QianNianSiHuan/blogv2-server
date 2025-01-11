@@ -17,6 +17,7 @@ type PwdLoginRequest struct {
 }
 
 func (UserApi) PwdLoginView(c *gin.Context) {
+
 	var cr PwdLoginRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
@@ -25,6 +26,7 @@ func (UserApi) PwdLoginView(c *gin.Context) {
 	}
 	if !global.Config.Site.Login.UsernamePwdLogin {
 		res.FailWithMsg(c, "密码登录未启用")
+		return
 	}
 	var user models.UserModel
 	err = global.DB.Take(&user, "(username=? or email = ?)and password <> ''",

@@ -11,7 +11,7 @@ import (
 
 func (ArticleApi) ArticleRemoveView(c *gin.Context) {
 	var cr models.RemoveRequest
-	err := c.ShouldBindUri(&cr)
+	err := c.ShouldBindJSON(&cr)
 
 	var list []models.ArticleModel
 	global.DB.Take(&list, " id in ?", cr.IDList)

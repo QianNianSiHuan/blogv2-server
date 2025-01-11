@@ -18,6 +18,4 @@ func main() {
 	log.SetItem("文章", 11)
 	log.SetTitle("同步")
 	log.Save()
-	log.SetItem("作文", 11)
-	log.Save()
 }

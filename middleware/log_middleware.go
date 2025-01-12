@@ -28,14 +28,10 @@ func LogMiddleware(c *gin.Context) {
 		ResponseWriter: c.Writer,
 		Head:           make(http.Header),
 	}
-	log.SetTitle("未命名日志")
 	c.Writer = res
+	log = log_service.SetLogWithDefaultConfig(c)
 	c.Next()
 	//响应日志中间件
-	log = log_service.GetLog(c)
-	log.ShowResquestHeader()
-	log.ShowRequest()
-	log.ShowResponseHeader()
 	log.SetResponse(res.Body)
 	log.SetResponseHeader(res.Head)
 	log.MiddlewareSave()

@@ -87,7 +87,7 @@ func (r *River) newCanal() error {
 	cfg.Flavor = global.Config.River.Flavor
 
 	cfg.ServerID = global.Config.River.ServerID
-
+	cfg.Dump.ExecutionPath = ""
 	for _, s := range global.Config.River.Sources {
 		for _, t := range s.Tables {
 			cfg.IncludeTableRegex = append(cfg.IncludeTableRegex, s.Schema+"\\."+t)

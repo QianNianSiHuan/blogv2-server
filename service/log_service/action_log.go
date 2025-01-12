@@ -159,11 +159,12 @@ func (ac *ActionLog) MiddlewareSave() {
 	// 添加响应头信息
 	if ac.showResponseHeader {
 		byteDate, _ := json.Marshal(ac.responseHeader)
-		ac.itemList = append(ac.itemList, fmt.Sprintf("响应头: %s", byteDate))
+		ac.itemList = append(ac.itemList, fmt.Sprintf("<div class=\"log_response_header\"><div class=\"log_response_body\"><pre class=\"log_json_body\">%s</pre></div></div>", byteDate))
 	}
 	// 添加响应体信息
 	if ac.showResponse {
-		ac.itemList = append(ac.itemList, fmt.Sprintf("响应体: %s", ac.responseBody))
+		ac.itemList = append(ac.itemList, fmt.Sprintf("<div class=\"log_response\"><pre class=\"log_json_body\">%s</pre></div>",
+			ac.responseBody))
 	}
 	ac.Save()
 }
@@ -187,12 +188,20 @@ func (ac *ActionLog) Save() (id uint) {
 	}
 	// 添加请求体信息
 	if ac.showRequest {
-		newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request\"><div class=\"log_request_head\"><span class=\"log_request_method %s\">%s</span><span class=\"log_request_path\">%s</span></div><div class=\"log_request_body\"><pre class=\"log_json_body\">%s</pre></div></div>",
-			strings.ToLower(ac.c.Request.Method),
-			ac.c.Request.Method,
-			ac.c.Request.URL,
-			string(ac.requestBody),
-		))
+		if string(ac.requestBody) == "" {
+			newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request\"><div class=\"log_request_head\"><span class=\"log_request_method %s\">%s</span><span class=\"log_request_path\">%s</span></div><div class=\"log_request_body\"></div></div>",
+				strings.ToLower(ac.c.Request.Method),
+				ac.c.Request.Method,
+				ac.c.Request.URL,
+			))
+		} else {
+			newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request\"><div class=\"log_request_head\"><span class=\"log_request_method %s\">%s</span><span class=\"log_request_path\">%s</span></div><div class=\"log_request_body\"><pre class=\"log_json_body\">%s</pre></div></div>",
+				strings.ToLower(ac.c.Request.Method),
+				ac.c.Request.Method,
+				ac.c.Request.URL,
+				string(ac.requestBody),
+			))
+		}
 	}
 
 	newItemList = append(newItemList, ac.itemList...)
@@ -200,11 +209,11 @@ func (ac *ActionLog) Save() (id uint) {
 	if ac.isMiddleware {
 		if ac.showResponseHeader {
 			byteDate, _ := json.Marshal(ac.responseHeader)
-			newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_response_header\"><div class=\"log_request_body\"><pre class=\"log_json_body\">%s</pre></div></div>", byteDate))
+			newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_response_header\"><div class=\"log_response_body\"><pre class=\"log_json_body\">%s</pre></div></div>", byteDate))
 		}
 		if ac.showResponse {
 			newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_response\"><pre class=\"log_json_body\">%s</pre></div>",
-				string(ac.responseBody)))
+				ac.responseBody))
 		}
 	}
 	ip := ac.c.ClientIP()
@@ -222,6 +231,7 @@ func (ac *ActionLog) Save() (id uint) {
 		Level:   ac.level,
 		UserID:  userID,
 		IP:      ip,
+		Method:  ac.c.Request.Method,
 		Addr:    addr,
 	}
 	err = global.DB.Create(&log).Error
@@ -253,4 +263,61 @@ func GetLog(c *gin.Context) *ActionLog {
 	}
 	c.Set("saveLog", true)
 	return log
+}
+
+type LogConfig struct {
+	Record         bool //是否记录,日志开关
+	Title          string
+	LogLevel       enum.LogLevelType
+	RequestBody    bool
+	RequestHeader  bool
+	ResponseBody   bool
+	ResponseHeader bool
+}
+
+// 自定义操作日志
+func SetLogWithConfig(c *gin.Context, config LogConfig) (actionLog *ActionLog) {
+	title := c.Request.URL.Path
+	if !config.Record || title == "/api/logs" {
+		return NewActionLogByGin(c)
+	}
+	actionLog = GetLog(c)
+	if config.RequestHeader {
+		actionLog.ShowResquestHeader()
+	}
+	if config.LogLevel == 0 {
+		actionLog.level = enum.LofInfoLevel
+	} else {
+		actionLog.level = config.LogLevel
+	}
+	if config.RequestBody {
+		actionLog.ShowRequest()
+	}
+	if config.ResponseHeader {
+		actionLog.ShowResponseHeader()
+	}
+	if config.ResponseBody {
+		actionLog.ShowResponse()
+	}
+	if config.Title != "" {
+		actionLog.SetTitle(config.Title)
+	} else {
+		actionLog.SetTitle(title)
+	}
+	fmt.Println(actionLog)
+	return
+}
+
+// 默认操作日志格式
+func SetLogWithDefaultConfig(c *gin.Context) *ActionLog {
+	var defaultConfig = LogConfig{
+		Record:         true,
+		Title:          "",
+		LogLevel:       enum.LofInfoLevel,
+		RequestBody:    true,
+		RequestHeader:  true,
+		ResponseBody:   true,
+		ResponseHeader: true,
+	}
+	return SetLogWithConfig(c, defaultConfig)
 }

@@ -6,7 +6,6 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/models/enum"
-	"blogv2/service/log_service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -79,7 +78,7 @@ func (LogApi) LogReadView(c *gin.Context) {
 	if !log.IsRead {
 		global.DB.Model(&log).Update("is_read", true)
 	}
-	res.FailWithMsg(c, "日志读取成功")
+	res.SuccessWithMsg(c, "日志读取成功")
 }
 
 // 日志删除
@@ -90,11 +89,6 @@ func (LogApi) LogRemoveView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
-
-	log := log_service.GetLog(c)
-	log.ShowRequest()
-	log.ShowResponse()
-
 	var logList []models.LogModel
 	global.DB.Find(&logList, "id in ?", cr.IDList)
 	if len(logList) > 0 {

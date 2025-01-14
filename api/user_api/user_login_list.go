@@ -21,8 +21,6 @@ type UserLoginListRequest struct {
 }
 type UserLoginListResponse struct {
 	models.UserLoginModel
-	UserNickname string `json:"userNickname"`
-	UserAvatar   string `json:"userAvatar"`
 }
 
 func (UserApi) UserLoginListView(c *gin.Context) {
@@ -70,8 +68,6 @@ func (UserApi) UserLoginListView(c *gin.Context) {
 	for _, model := range _list {
 		list = append(list, UserLoginListResponse{
 			UserLoginModel: model,
-			UserNickname:   model.UserModel.Nickname,
-			UserAvatar:     model.UserModel.Avatar,
 		})
 	}
 	res.SuccessWithList(c, list, count)

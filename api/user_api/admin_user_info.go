@@ -27,8 +27,8 @@ func (UserApi) AdminUserInfoUpdateView(c *gin.Context) {
 		return
 	}
 	claims := jwts.GetClaims(c)
-	if cr.Role != nil && *cr.UserID != claims.UserID {
-		res.FailWithMsg(c, "不能修改自己的角色")
+	if cr.Role != nil && *cr.UserID != claims.UserID && claims.Role != enum.AdminRole {
+		res.FailWithMsg(c, "不能修改非自己的角色")
 		return
 	}
 	userMap, err := maps.StructToMap(cr, "s-u")

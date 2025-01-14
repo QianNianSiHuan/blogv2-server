@@ -16,7 +16,7 @@ type ImageModel struct {
 }
 
 func (i ImageModel) WebPath() string {
-	return fmt.Sprintf("/" + i.Path)
+	return fmt.Sprintf("http://localhost:8080" + "/" + i.Path)
 }
 func (i ImageModel) BeforeDelete(tx *gorm.DB) error {
 	err := os.Remove(i.Path)

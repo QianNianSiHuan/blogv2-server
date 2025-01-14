@@ -6,4 +6,5 @@ const (
 	RegisterEmailSourceType    RegisterSourceType = 1
 	RegisterQQSourceType       RegisterSourceType = 2
 	RegisterTerminalSourceType RegisterSourceType = 3
+	RegisterAdminSourceType    RegisterSourceType = 4
 )

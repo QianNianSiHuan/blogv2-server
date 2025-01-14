@@ -41,5 +41,5 @@ func (UserApi) UpdatePasswordView(c *gin.Context) {
 	}
 	hashPwd, _ := pwd.GenerateFromPassword(cr.Pwd)
 	global.DB.Model(&user).Update("password", hashPwd)
-	res.FailWithMsg(c, "密码修改成功")
+	res.SuccessWithMsg(c, "密码修改成功")
 }

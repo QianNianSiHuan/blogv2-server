@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"blogv2/core"
@@ -278,7 +279,8 @@ type LogConfig struct {
 // 自定义操作日志
 func SetLogWithConfig(c *gin.Context, config LogConfig) (actionLog *ActionLog) {
 	title := c.Request.URL.Path
-	if !config.Record || title == "/api/logs" {
+	matched, _ := regexp.MatchString("/api/logs", title)
+	if !config.Record || matched {
 		return NewActionLogByGin(c)
 	}
 	actionLog = GetLog(c)

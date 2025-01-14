@@ -10,6 +10,7 @@ func UserRouter(r *gin.RouterGroup) {
 	app := api.App.UserApi
 	r.POST("user/send_email", middleware.CaptchaMiddleware, app.SendEmailView)
 	r.POST("user/email", middleware.CaptchaMiddleware, middleware.EmailVerifyMiddleware, app.RegisterEmailView)
+	r.POST("user/admin", middleware.AdminMiddleware, app.RegisterAdminView)
 	r.POST("user/qq", app.QQLoginView)
 	r.POST("user/login", middleware.CaptchaMiddleware, app.PwdLoginView)
 	r.POST("user/logout", middleware.AuthMiddleware, app.UserLogoutView)
@@ -22,4 +23,5 @@ func UserRouter(r *gin.RouterGroup) {
 	r.PUT("user/admin", middleware.AdminMiddleware, app.AdminUserInfoUpdateView)
 	r.GET("user/base", app.UserBaseInfoView)
 	r.GET("user/user_list", middleware.AuthMiddleware, middleware.AdminMiddleware, app.UserListView)
+	r.DELETE("user/user_list", middleware.AdminMiddleware, app.UserRemoveView)
 }

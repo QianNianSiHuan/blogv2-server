@@ -21,6 +21,8 @@ type UserDetailResponse struct {
 	CodeAge        int                     `json:"codeAge"`        // 码龄
 	Role           enum.RoleType           `json:"role"`
 	models.UserConfModel
+	Email       string `json:"email"`
+	UsePassword bool   `json:"usePassword"`
 }
 
 func (UserApi) UserDetailView(c *gin.Context) {
@@ -42,7 +44,12 @@ func (UserApi) UserDetailView(c *gin.Context) {
 		RegisterSource: user.RegisterSource,
 		Role:           user.Role,
 		CodeAge:        user.CodeAge(),
+		Email:          user.Email,
 	}
+	if user.Password != "" {
+		data.UsePassword = true
+	}
+
 	if user.UserConfModel != nil {
 		data.UserConfModel = *user.UserConfModel
 	}

@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 )
@@ -15,14 +16,17 @@ func StructToMap(data any, tagName string) (mp map[string]any, err error) {
 	for i := 0; i < v.NumField(); i++ {
 		val := v.Field(i)
 		tag := v.Type().Field(i).Tag.Get(tagName)
-		if tag == "" || tag == "-" {
+		if tag == "" || tag == "-" || val.IsNil() {
 			continue
 		}
 		if val.Kind() == reflect.Ptr {
-			if val.IsNil() {
-				continue
+			v1 := val.Elem().Interface()
+			if val.Elem().Kind() == reflect.Slice {
+				byteData, _ := json.Marshal(v1)
+				mp[tag] = string(byteData)
+			} else {
+				mp[tag] = v1
 			}
-			mp[tag] = val.Elem().Interface()
 			continue
 		}
 		mp[tag] = val.Interface()

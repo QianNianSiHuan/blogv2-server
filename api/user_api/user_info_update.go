@@ -7,6 +7,7 @@ import (
 	"blogv2/models/enum"
 	jwts "blogv2/utils/jwt"
 	"blogv2/utils/maps"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -31,18 +32,18 @@ func (UserApi) UserInfoUpdateView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
+	fmt.Println("UserInfoUpdateView----------->", cr.LikeTags)
 	userMap, err := maps.StructToMap(cr, "s-u")
 	if err != nil {
 		res.FailWithMsg(c, "用户map转化失败")
 		return
 	}
-	logrus.Info(userMap)
 	userConfMap, err := maps.StructToMap(cr, "s-u-c")
 	if err != nil {
 		res.SuccessWithMsg(c, "用户配置表转map失败")
 		return
 	}
-
+	logrus.Warning(userConfMap)
 	claims := jwts.GetClaims(c)
 
 	if len(userMap) > 0 {
@@ -95,7 +96,7 @@ func (UserApi) UserInfoUpdateView(c *gin.Context) {
 			res.FailWithMsg(c, "用户不存在")
 			return
 		}
-		err = global.DB.Model(&userConfModel).Updates(userConfModel).Error
+		err = global.DB.Model(&userConfModel).Updates(userConfMap).Error
 		if err != nil {
 			res.FailWithMsg(c, "用户信息修改失败")
 			return

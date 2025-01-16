@@ -84,6 +84,10 @@ func (ArticleApi) ArticleUpdateView(c *gin.Context) {
 		// 如果是已发布的文章，进行编辑，那么就要改成待审核
 		mps["status"] = enum.ArticleStatusExamine
 	}
+	if article.Status == enum.ArticleStatusFail && !global.Config.Site.Article.NoExamine {
+		// 如果是已拒绝的文章，进行编辑，那么就要改成待审核
+		mps["status"] = enum.ArticleStatusExamine
+	}
 
 	err = global.DB.Model(&article).Updates(mps).Error
 	if err != nil {

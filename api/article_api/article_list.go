@@ -105,18 +105,20 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 
 	var userTopMap = map[uint]bool{}
 	var adminTopMap = map[uint]bool{}
+	var userTopQuery = global.DB.Where("")
 	if cr.UserID != 0 {
-		var userTopArticleList []models.UserTopArticleModel
-		global.DB.Preload("UserModel").Order("created_at desc").Find(&userTopArticleList, "user_id =?", cr.UserID)
-		for _, i2 := range userTopArticleList {
-			topArticleIDList = append(topArticleIDList, i2.ArticleID)
-			if i2.UserModel.Role == enum.AdminRole {
-				adminTopMap[i2.ArticleID] = true
-			}
-			userTopMap[i2.ArticleID] = true
-		}
+		userTopQuery.Where("user_id = ?", cr.UserID)
 	}
+	var userTopArticleList []models.UserTopArticleModel
+	global.DB.Preload("UserModel").Order("created_at desc").Where(userTopQuery).Find(&userTopArticleList)
 
+	for _, i2 := range userTopArticleList {
+		topArticleIDList = append(topArticleIDList, i2.ArticleID)
+		if i2.UserModel.Role == enum.AdminRole {
+			adminTopMap[i2.ArticleID] = true
+		}
+		userTopMap[i2.ArticleID] = true
+	}
 	var options = common.Options{
 		Likes:        []string{"title"},
 		PageInfo:     cr.PageInfo,
@@ -156,7 +158,6 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 			data.CategoryTitle = &model.CategoryModel.Title
 		}
 		list = append(list, data)
-
 	}
 	res.SuccessWithList(c, list, count)
 }

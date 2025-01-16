@@ -11,7 +11,7 @@ import (
 
 func (ArticleApi) ArticleRemoveUserView(c *gin.Context) {
 	var cr models.IDRequest
-	err := c.ShouldBindJSON(&cr)
+	err := c.ShouldBindUri(&cr)
 
 	claims := jwts.GetClaims(c)
 	var model models.ArticleModel

@@ -24,4 +24,5 @@ func UserRouter(r *gin.RouterGroup) {
 	r.GET("user/base", app.UserBaseInfoView)
 	r.GET("user/user_list", middleware.AuthMiddleware, middleware.AdminMiddleware, app.UserListView)
 	r.DELETE("user/user_list", middleware.AdminMiddleware, app.UserRemoveView)
+	r.POST("user/article/top", middleware.AuthMiddleware, app.UserArticleTopView)
 }

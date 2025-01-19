@@ -28,7 +28,7 @@ func (ArticleApi) CategoryCreateView(c *gin.Context) {
 	var model models.CategoryModel
 	if cr.ID == 0 {
 		// 创建
-		err := global.DB.Take(&model, "user_id = ? and title = ?", claims.UserID, cr.Title).Error
+		err = global.DB.Take(&model, "user_id = ? and title = ?", claims.UserID, cr.Title).Error
 		if err == nil {
 			res.FailWithMsg(c, "分类名称重复")
 			return

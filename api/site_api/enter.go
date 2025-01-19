@@ -21,6 +21,19 @@ type SiteInfoRequest struct {
 	Name string `uri:"name"`
 }
 
+type QiNiu struct {
+	Enable bool `json:"enable"`
+}
+type Ai struct {
+	Enable bool `json:"enable"`
+}
+
+type SiteInfoResponse struct {
+	conf.Site
+	QiNiu QiNiu `json:"qiNiu"`
+	Ai    Ai    `json:"ai"`
+}
+
 func (SiteApi) SiteInfoView(c *gin.Context) {
 	var cr SiteInfoRequest
 	err := c.ShouldBindUri(&cr)
@@ -29,7 +42,15 @@ func (SiteApi) SiteInfoView(c *gin.Context) {
 	}
 	if cr.Name == "site" {
 		global.Config.Site.About.Version = global.Version
-		res.SuccessWithData(c, global.Config.Site)
+		res.SuccessWithData(c, SiteInfoResponse{
+			Site: global.Config.Site,
+			QiNiu: QiNiu{
+				Enable: global.Config.QiNiu.Enable,
+			},
+			Ai: Ai{
+				Enable: global.Config.Ai.Enable,
+			},
+		})
 		return
 	}
 	//判断角色是否管理员

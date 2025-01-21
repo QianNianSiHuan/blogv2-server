@@ -3,6 +3,7 @@ package models
 import "time"
 
 type ArticleDiggModel struct {
+	Model
 	UserID       uint         `gorm:"uniqueIndex:idx_name" json:"userID"`
 	UserModel    UserModel    `gorm:"foreignKey:UserID" json:"-"`
 	ArticleID    uint         `gorm:"uniqueIndex:idx_name" json:"articleID"`

@@ -24,6 +24,7 @@ func Run() {
 	ImageRouter(nr)
 	ArticleRouter(nr)
 	CommentRouter(nr)
+	SearchRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

@@ -3,7 +3,6 @@ package middleware
 import (
 	"blogv2/service/log_service"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -31,7 +30,6 @@ func LogMiddleware(c *gin.Context) {
 	}
 	c.Writer = res
 	log = log_service.SetLogWithDefaultConfig(c)
-	logrus.Warnf("%p", log)
 	c.Next()
 	//响应日志中间件
 	log.SetResponse(res.Body)

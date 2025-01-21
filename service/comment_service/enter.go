@@ -71,13 +71,14 @@ type CommentResponse struct {
 	DiggCount    int                `json:"diggCount"`
 	ApplyCount   int                `json:"applyCount"`
 	SubComments  []*CommentResponse `json:"subComments"`
+	IsDigg       bool               `json:"isDigg"`
 }
 
-func GetCommentTreeV4(id uint) (res *CommentResponse) {
-	return getCommentTreeV4(id, 1)
+func GetCommentTreeV4(id uint, userDiggMap map[uint]bool) (res *CommentResponse) {
+	return getCommentTreeV4(id, 1, userDiggMap)
 }
 
-func getCommentTreeV4(id uint, line int) (res *CommentResponse) {
+func getCommentTreeV4(id uint, line int, userDiggMap map[uint]bool) (res *CommentResponse) {
 	model := &models.CommentModel{
 		Model: models.Model{ID: id},
 	}
@@ -96,12 +97,13 @@ func getCommentTreeV4(id uint, line int) (res *CommentResponse) {
 		DiggCount:    model.DiggCount + redis_comment.GetCacheDigg(model.ID),
 		ApplyCount:   redis_comment.GetCacheApply(model.ID),
 		SubComments:  make([]*CommentResponse, 0),
+		IsDigg:       userDiggMap[model.ID],
 	}
 	if line >= global.Config.Site.Article.CommentLine {
 		return
 	}
 	for _, commentModel := range model.SubCommentList {
-		res.SubComments = append(res.SubComments, getCommentTreeV4(commentModel.ID, line+1))
+		res.SubComments = append(res.SubComments, getCommentTreeV4(commentModel.ID, line+1, userDiggMap))
 	}
 	return
 }

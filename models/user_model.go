@@ -23,8 +23,10 @@ type UserModel struct {
 	Addr           string                  `json:"addr"`
 }
 
-func (u *UserModel) AfterCreate(tx *gorm.DB) error {
-	return tx.Create(&UserConfModel{UserID: u.ID}).Error
+func (u *UserModel) AfterCreate(tx *gorm.DB) (err error) {
+	err = tx.Create(&UserConfModel{UserID: u.ID}).Error
+	err = tx.Create(&CollectModel{UserID: u.ID, IsDefault: true, Title: "默认收藏夹"}).Error
+	return
 }
 func (u *UserModel) CodeAge() int {
 	sub := time.Now().Sub(u.CreatedAt)

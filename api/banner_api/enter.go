@@ -15,6 +15,7 @@ type BannerCreatRequest struct {
 	Cover string `json:"cover" binding:"required"`
 	Href  string `json:"href"`
 	Show  bool   `json:"show"`
+	Type  int8   `json:"type" binding:"required,oneof=1 2"`
 }
 
 func (BannerApi) BannerCreatView(c *gin.Context) {
@@ -24,10 +25,14 @@ func (BannerApi) BannerCreatView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
+	if cr.Type == 0 {
+		cr.Type = 1
+	}
 	err = global.DB.Create(&models.BannerModel{
 		Show:  cr.Show,
 		Cover: cr.Cover,
 		Href:  cr.Href,
+		Type:  cr.Type,
 	}).Error
 	if err != nil {
 		res.FailWithError(c, err)
@@ -39,6 +44,7 @@ func (BannerApi) BannerCreatView(c *gin.Context) {
 type BannerListRequest struct {
 	common.PageInfo
 	Show bool `from:"show"`
+	Type int8 `from:"type"`
 }
 
 func (BannerApi) BannerListView(c *gin.Context) {
@@ -50,6 +56,7 @@ func (BannerApi) BannerListView(c *gin.Context) {
 	}
 	list, count, _ := common.ListQuery(models.BannerModel{
 		Show: cr.Show,
+		Type: cr.Type,
 	}, common.Options{
 		PageInfo: cr.PageInfo,
 	})

@@ -6,7 +6,7 @@ import (
 )
 
 type TextModel struct {
-	ArticleID uint   `json:"articleID"`
+	ArticleID uint   `json:"article_id"`
 	Head      string `json:"head"`
 	Body      string `json:"body"`
 }

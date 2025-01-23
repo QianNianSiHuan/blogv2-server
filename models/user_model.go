@@ -9,7 +9,7 @@ import (
 
 type UserModel struct {
 	Model
-	Username       string                  `gorm:"size:32" json:"username"`
+	Username       string                  `gorm:"size:32;unique" json:"username"`
 	Nickname       string                  `gorm:"size:32" json:"nickname"`
 	Avatar         string                  `gorm:"size:256" json:"avatar"`
 	Abstract       string                  `gorm:"size:256" json:"abstract"`

@@ -39,7 +39,7 @@ type ArticleListResponse struct {
 
 func (SearchApi) ArticleSearchView(c *gin.Context) {
 	var cr ArticleSearchRequest
-	err := c.ShouldBindJSON(&cr)
+	err := c.ShouldBindQuery(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
 		return

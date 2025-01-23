@@ -8,6 +8,7 @@ import (
 	"blogv2/service/text_service"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
@@ -21,11 +22,12 @@ type TextSearchResponse struct {
 	ArticleID uint   `json:"articleID"`
 	Head      string `json:"head"`
 	Body      string `json:"body"`
+	Flag      string `json:"flag"`
 }
 
 func (SearchApi) TextSearchView(c *gin.Context) {
 	var cr TextSearchRequest
-	err := c.ShouldBindJSON(&cr)
+	err := c.ShouldBindQuery(&cr)
 	if err != nil {
 		res.FailWithError(c, err)
 		return
@@ -43,6 +45,7 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 				ArticleID: model.ArticleID,
 				Head:      model.Head,
 				Body:      model.Body,
+				Flag:      model.Head,
 			})
 		}
 
@@ -81,14 +84,15 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 	var list = make([]TextSearchResponse, 0)
 
 	for _, hit := range result.Hits.Hits {
-
 		var item text_service.TextModel
+		fmt.Printf("------------------>%s", hit.Source)
 		err = json.Unmarshal(hit.Source, &item)
+		fmt.Printf("%s", item)
 		if err != nil {
 			logrus.Warnf("解析失败 %s  %s", err, string(hit.Source))
 			continue
 		}
-
+		head := item.Head
 		if len(hit.Highlight["head"]) > 0 {
 			item.Head = hit.Highlight["head"][0]
 		}
@@ -100,6 +104,7 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 			ArticleID: item.ArticleID,
 			Head:      item.Head,
 			Body:      item.Body,
+			Flag:      head,
 		})
 	}
 

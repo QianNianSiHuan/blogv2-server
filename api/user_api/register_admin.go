@@ -34,6 +34,7 @@ func (UserApi) RegisterAdminView(c *gin.Context) {
 		res.FailWithMsg(c, "密码转换失败")
 		return
 	}
+	global.DB.Take(&models.UserModel{})
 	//创建用户
 	var user = models.UserModel{
 		Username:       cr.Username,

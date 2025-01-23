@@ -9,4 +9,5 @@ func SearchRouter(r *gin.RouterGroup) {
 	app := api.App.SearchApi
 	r.GET("/search/article", app.ArticleSearchView)
 	r.GET("/search/text", app.TextSearchView)
+	r.GET("/search/tags", app.TagAggView)
 }

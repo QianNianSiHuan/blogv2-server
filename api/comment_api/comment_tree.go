@@ -30,7 +30,7 @@ func (CommentApi) CommentTreeView(c *gin.Context) {
 	if err == nil && claims != nil {
 		// 登录了
 		var commentList []models.CommentModel // 文章的评论id列表
-		global.DB.Find(&commentList, "article_id = ?", cr.ID)
+		global.DB.Find(&commentList, "article_id = ? and  status = ? ", cr.ID, enum.CommentStatusPublished)
 
 		if len(commentList) > 0 {
 			// 查我点赞的评论id列表
@@ -50,7 +50,7 @@ func (CommentApi) CommentTreeView(c *gin.Context) {
 	}
 	//把根评论查出来
 	var commentList []models.CommentModel
-	global.DB.Find(&commentList, "article_id = ? and parent_id is null", cr.ID)
+	global.DB.Find(&commentList, "article_id = ? and parent_id is null and status = ?", cr.ID, enum.CommentStatusPublished)
 	var list = make([]comment_service.CommentResponse, 0)
 	for _, model := range commentList {
 		response := comment_service.GetCommentTreeV4(model.ID, userDiggCommentMap)

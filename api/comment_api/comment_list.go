@@ -14,22 +14,24 @@ import (
 
 type CommentListRequest struct {
 	common.PageInfo
-	ArticleID uint `form:"articleID"`
-	UserID    uint `form:"userID"`
-	Type      int8 `form:"type" binding:"required"` // 1 查我发文章的评论  2 查我发布的评论  3 管理员看所有的评论
+	ArticleID uint                `form:"articleID"`
+	UserID    uint                `form:"userID"`
+	Type      int8                `form:"type" binding:"required"` // 1 查我发文章的评论  2 查我发布的评论  3 管理员看所有的评论
+	Status    *enum.CommentStatus `form:"status" binding:"oneof=0 1 2 3"`
 }
 
 type CommentListResponse struct {
-	ID           uint      `json:"id"`
-	CreatedAt    time.Time `json:"createdAt"`
-	Content      string    `json:"content"`
-	UserID       uint      `json:"userID"`
-	UserNickname string    `json:"userNickname"`
-	UserAvatar   string    `json:"userAvatar"`
-	ArticleID    uint      `json:"articleID"`
-	ArticleTitle string    `json:"articleTitle"`
-	ArticleCover string    `json:"articleCover"`
-	DiggCount    int       `json:"diggCount"`
+	ID           uint               `json:"id"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	Content      string             `json:"content"`
+	UserID       uint               `json:"userID"`
+	UserNickname string             `json:"userNickname"`
+	UserAvatar   string             `json:"userAvatar"`
+	ArticleID    uint               `json:"articleID"`
+	ArticleTitle string             `json:"articleTitle"`
+	ArticleCover string             `json:"articleCover"`
+	DiggCount    int                `json:"diggCount"`
+	Status       enum.CommentStatus `json:"status"`
 }
 
 func (CommentApi) CommentListView(c *gin.Context) {
@@ -55,7 +57,9 @@ func (CommentApi) CommentListView(c *gin.Context) {
 		cr.UserID = claims.UserID
 	case 3:
 	}
-
+	if cr.Status != nil && *cr.Status != 0 {
+		query.Where("status = ? ", cr.Status)
+	}
 	_list, count, _ := common.ListQuery(models.CommentModel{
 		ArticleID: cr.ArticleID,
 		UserID:    cr.UserID,
@@ -79,6 +83,7 @@ func (CommentApi) CommentListView(c *gin.Context) {
 			ArticleTitle: model.ArticleModel.Title,
 			ArticleCover: model.ArticleModel.Cover,
 			DiggCount:    model.DiggCount + redis_comment.GetCacheDigg(model.ID),
+			Status:       model.Status,
 		})
 	}
 

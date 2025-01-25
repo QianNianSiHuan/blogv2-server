@@ -56,6 +56,9 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 			}
 		}
 	}
+	if !global.Config.Site.Article.CommentNoExamine {
+		model.Status = enum.CommentStatusExamine
+	}
 	err = global.DB.Create(&model).Error
 	if err != nil {
 		res.SuccessWithMsg(c, "评论发布失败")

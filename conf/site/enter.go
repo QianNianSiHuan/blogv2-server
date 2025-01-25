@@ -40,6 +40,7 @@ type IndexRight struct {
 	List []ComponentInfo
 }
 type Article struct {
-	NoExamine   bool `yaml:"noExamine" json:"noExamine"` //免审核
-	CommentLine int  `json:"commentLine" yaml:"commentLine"`
+	CommentNoExamine bool `yaml:"commentNoExamine" json:"commentNoExamine"`
+	NoExamine        bool `yaml:"noExamine" json:"noExamine"` //免审核
+	CommentLine      int  `json:"commentLine" yaml:"commentLine"`
 }

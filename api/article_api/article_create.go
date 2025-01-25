@@ -37,7 +37,7 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 		res.FailWithMsg(c, "用户不存在")
 		return
 	}
-	if global.Config.Site.SiteInfo.Mode == 2 && user.Role != 1 {
+	if global.Config.Site.SiteInfo.Mode == 2 && user.Role != enum.AdminRole {
 		res.FailWithMsg(c, "博客模式下,普通用户不能发文章")
 		return
 	}

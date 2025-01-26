@@ -18,7 +18,7 @@ func main() {
 	global.DB = core.InitDB()
 	global.Redis = core.InitRedis()
 	global.ESClient = core.EsConnect()
-	core.InitIPDb()
+	global.IP = core.InitIPDb()
 	flags.Run()
 	core.InitMysqlEs()
 	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)

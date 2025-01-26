@@ -1,6 +1,8 @@
 package res
 
 import (
+	"blogv2/models/enum"
+	"blogv2/service/log_service"
 	"blogv2/utils/vaildate"
 	"github.com/gin-gonic/gin"
 )
@@ -62,6 +64,8 @@ func FailWithCode(code Code, c *gin.Context) {
 	Response{code, empty, code.String()}.Json(c)
 }
 func FailWithError(c *gin.Context, err error) {
+	log := c.Keys["actionLog"].(*log_service.ActionLog)
+	log.SetLevel(enum.LofErrLevel)
 	data, msg := vaildate.ValidateError(err)
 	FailWithData(c, msg, data)
 }

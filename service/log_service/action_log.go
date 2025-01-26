@@ -1,6 +1,11 @@
 package log_service
 
 import (
+	"blogv2/global"
+	"blogv2/models"
+	"blogv2/models/enum"
+	ip2 "blogv2/utils/ip"
+	jwts "blogv2/utils/jwt"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -12,12 +17,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-
-	"blogv2/core"
-	"blogv2/global"
-	"blogv2/models"
-	"blogv2/models/enum"
-	jwts "blogv2/utils/jwt"
 )
 
 // ActionLog 结构体用于记录操作日志。
@@ -218,7 +217,7 @@ func (ac *ActionLog) Save() (id uint) {
 		}
 	}
 	ip := ac.c.ClientIP()
-	addr := core.GetIpAddr(ip)
+	addr := ip2.GetIpAddr(ip)
 	userID := uint(0)
 	claims, err := jwts.ParseTokenByGin(ac.c)
 	if err == nil && claims != nil {

@@ -4,7 +4,6 @@ import (
 	"blogv2/common/res"
 	"blogv2/global"
 	"bytes"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 )
@@ -33,9 +32,7 @@ func CaptchaMiddleware(c *gin.Context) {
 		return
 	}
 	if !global.CaptchaStore.Verify(cr.CaptchaID, cr.CaptchaCode, true) {
-		fmt.Println(cr.CaptchaID)
-		fmt.Println(cr.CaptchaCode)
-		res.SuccessWithMsg(c, "验证码错误")
+		res.FailWithMsg(c, "验证码错误")
 		c.Abort()
 		return
 	}

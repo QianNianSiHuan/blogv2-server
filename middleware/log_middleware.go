@@ -30,6 +30,7 @@ func LogMiddleware(c *gin.Context) {
 	}
 	c.Writer = res
 	log = log_service.SetLogWithDefaultConfig(c)
+	c.Set("actionLog", log)
 	c.Next()
 	//响应日志中间件
 	log.SetResponse(res.Body)

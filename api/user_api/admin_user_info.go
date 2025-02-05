@@ -7,6 +7,7 @@ import (
 	"blogv2/models/enum"
 	jwts "blogv2/utils/jwt"
 	"blogv2/utils/maps"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,6 +43,7 @@ func (UserApi) AdminUserInfoUpdateView(c *gin.Context) {
 		res.FailWithMsg(c, "用户不存在")
 		return
 	}
+	fmt.Println("--------------", userMap)
 	err = global.DB.Model(&user).Updates(userMap).Error
 	if err != nil {
 		res.FailWithMsg(c, "用户信息修改失败")

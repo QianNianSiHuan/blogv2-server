@@ -16,6 +16,7 @@ func Run() {
 	r.Static("/uploads", "uploads")
 	nr := r.Group("/api")
 	nr.Use(middleware.LogMiddleware)
+	AiRouter(nr)
 	SiteRouter(nr)
 	LogRouter(nr)
 	UserRouter(nr)

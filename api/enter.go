@@ -1,6 +1,7 @@
 package api
 
 import (
+	"blogv2/api/ai_api"
 	"blogv2/api/article_api"
 	"blogv2/api/banner_api"
 	"blogv2/api/captcha_api"
@@ -22,6 +23,7 @@ type Api struct {
 	ArticleApi article_api.ArticleApi
 	CommentApi comment_api.CommentApi
 	SearchApi  search_api.SearchApi
+	AiApi      ai_api.AiApi
 }
 
 var App = Api{}

@@ -1,6 +1,7 @@
 package text_service
 
 import (
+	"blogv2/global"
 	"fmt"
 	"strings"
 )
@@ -67,4 +68,16 @@ func getHead(head string) string {
 func getBody(body string) string {
 	body = strings.TrimSpace(body)
 	return body
+}
+
+// ReplaceSensitiveWords 替换敏感词
+func ReplaceSensitiveWords(text string, replaceWord string) string {
+	// 将匹配位置转换为区间
+	//hits := ahocorasick.NewStringMatcher(global.SensitiveWords).Match([]byte(text))
+	hits := global.AhoCorasick.Match([]byte(text))
+	for _, val := range hits {
+		oldReplaceWord := global.SensitiveWords[val]
+		text = strings.Replace(text, oldReplaceWord, strings.Repeat(replaceWord, len([]rune(oldReplaceWord))), -1)
+	}
+	return text
 }

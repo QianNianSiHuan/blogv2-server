@@ -6,10 +6,12 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/log_service"
+	"blogv2/service/redis_service/redis_login"
 	"blogv2/service/user_server"
 	jwts "blogv2/utils/jwt"
 	"blogv2/utils/pwd"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type PwdLoginRequest struct {
@@ -32,8 +34,20 @@ func (UserApi) PwdLoginView(c *gin.Context) {
 	err = global.DB.Take(&user, "(username=? or email = ?)and password <> ''",
 		cr.Val, cr.Val,
 	).Error
-	if err != nil || !pwd.CompareHashAndPassword(user.Password, cr.Password) {
-		res.FailWithMsg(c, "用户名或密码错误")
+	if err != nil {
+		res.FailWithMsg(c, "用户不存在")
+		redis_login.SetLoginCountByIP(c.ClientIP())
+		log_service.NewLoginFail(c, enum.UserPwdLoginType, "登录失败", cr.Val, cr.Password)
+	}
+	count := redis_login.GetLoginCountByID(strconv.Itoa(int(user.ID)))
+	if count > 5 {
+		res.FailWithMsg(c, "用户登录达到限制,请过段时间再次尝试")
+		return
+	}
+	if !pwd.CompareHashAndPassword(user.Password, cr.Password) {
+		res.FailWithMsg(c, "用户密码错误")
+		redis_login.SetLoginCountByID(strconv.Itoa(int(user.ID)))
+		redis_login.SetLoginCountByIP(c.ClientIP())
 		log_service.NewLoginFail(c, enum.UserPwdLoginType, "登录失败", cr.Val, cr.Password)
 		return
 	}
@@ -42,6 +56,7 @@ func (UserApi) PwdLoginView(c *gin.Context) {
 		Username: user.Username,
 		Role:     user.Role,
 	})
+	redis_login.ClearLoginCountAll(strconv.Itoa(int(user.ID)), c.ClientIP())
 	log_service.NewLoginSuccess(c, enum.UserPwdLoginType)
 	user_server.NewUserServiceApp(user).UserLogin(c)
 	res.SuccessWithData(c, token)

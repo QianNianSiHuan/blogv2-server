@@ -10,7 +10,7 @@ import (
 
 type CommentExamineRequest struct {
 	CommentID uint               `json:"commentID"`
-	Status    enum.CommentStatus `json:"status"`
+	Status    enum.CommentStatus `json:"status"` //"0"全部"1"待审核"2"已发布"3"未通过
 }
 
 func (CommentApi) CommentExamineView(c *gin.Context) {

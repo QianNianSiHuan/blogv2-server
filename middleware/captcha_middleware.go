@@ -3,6 +3,7 @@ package middleware
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/service/redis_service/redis_login"
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -32,6 +33,7 @@ func CaptchaMiddleware(c *gin.Context) {
 		return
 	}
 	if !global.CaptchaStore.Verify(cr.CaptchaID, cr.CaptchaCode, true) {
+		redis_login.SetLoginCountByIP(c.ClientIP())
 		res.FailWithMsg(c, "验证码错误")
 		c.Abort()
 		return

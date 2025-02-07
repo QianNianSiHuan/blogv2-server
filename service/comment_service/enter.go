@@ -4,6 +4,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"blogv2/service/redis_service/redis_comment"
+	"blogv2/service/text_service"
 	"time"
 )
 
@@ -84,7 +85,7 @@ func getCommentTreeV4(id uint, line int, userDiggMap map[uint]bool) (res *Commen
 	}
 
 	global.DB.Preload("UserModel").Preload("SubCommentList").Take(model)
-
+	model.Content = text_service.ReplaceSensitiveWords(model.Content, "*")
 	res = &CommentResponse{
 		ID:           model.ID,
 		CreatedAt:    model.CreatedAt,

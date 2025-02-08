@@ -21,6 +21,7 @@ func main() {
 	global.IP = core.InitIPDb()
 	global.SensitiveWords = core.InitSensitiveWords()
 	global.AhoCorasick = core.InitAhoCorasick()
+	core.InitObserver()
 	flags.Run()
 	core.InitMysqlEs()
 	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)

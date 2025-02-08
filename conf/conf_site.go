@@ -9,5 +9,5 @@ type Site struct {
 	About      site.About      `yaml:"about" json:"about"`
 	Login      site.Login      `yaml:"login" json:"login"`
 	IndexRight site.IndexRight `yaml:"indexRight" json:"indexRight"`
-	Article    site.Article    `yaml:"article" json:"article"`
+	Article    site.Article    `yaml:"observer_article" json:"observer_article"`
 }

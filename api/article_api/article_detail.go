@@ -3,6 +3,7 @@ package article_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
@@ -93,4 +94,5 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 		data.CategoryTitle = &article.CategoryModel.Title
 	}
 	res.SuccessWithData(c, data)
+	global_observer.AfterDetailNotifier.Notify(c, article.ID)
 }

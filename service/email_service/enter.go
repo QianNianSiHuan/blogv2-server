@@ -30,6 +30,14 @@ func SendBindEmailCode(to string, code string) error {
 	text := fmt.Sprintf("你正在进行邮箱绑定操作，这是你的验证码 %s 十分钟内有效", code)
 	return SendEmail(to, subject, text)
 }
+
+func SendFeedBack(username, userEmail, content string) error {
+	em := global.Config.Email
+	subject := fmt.Sprintf("【%s】意见反馈", username)
+	text := fmt.Sprintf("【邮箱】:%s \n【反馈内容】:%s", userEmail, content)
+	return SendEmail(em.SendEmail, subject, text)
+}
+
 func SendEmail(to, subject, text string) (err error) {
 	em := global.Config.Email
 	e := email.NewEmail()

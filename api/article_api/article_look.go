@@ -32,7 +32,6 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 		res.SuccessWithMsg(c, "未登录")
 		return
 	}
-
 	// 引入缓存
 	if redis_article.GetUserArticleHistoryCache(cr.ArticleID, claims.UserID) {
 		logrus.Infof("UserID: %d ArticleID: %d 在足迹缓存里面", cr.ArticleID, claims.UserID)
@@ -40,7 +39,6 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 		return
 	}
 	// 当天这个用户请求这个文章之后，将用户id和文章id作为key存入缓存，在这里进行判断，如果存在就直接返回
-
 	var article models.ArticleModel
 	err = global.DB.Take(&article, "status = ? and id = ?", enum.ArticleStatusPublished, cr.ArticleID).Error
 	if err != nil {

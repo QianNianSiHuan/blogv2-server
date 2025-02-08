@@ -88,10 +88,10 @@ func (ArticleApi) ArticleUpdateView(c *gin.Context) {
 		// 如果是已拒绝的文章，进行编辑，那么就要改成待审核
 		mps["status"] = enum.ArticleStatusExamine
 	}
-	//if cr.Title != article.Title || cr.Content != article.Content {
+	//if cr.Title != observer_article.Title || cr.Content != observer_article.Content {
 	//从新构建全文记录
-	//article.AfterDelete()
-	//article.AfterCreate()
+	//observer_article.AfterDelete()
+	//observer_article.AfterCreate()
 	//}
 
 	err = global.DB.Model(&article).Updates(mps).Error

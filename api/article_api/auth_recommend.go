@@ -12,8 +12,8 @@ type AuthRecommendResponse struct {
 //
 //	var count int
 //	var userIDList []uint
-//	global.DB.Model(models.ArticleModel{}).Group("user_id").Select("count(*)").Scan(&count)
-//	global.DB.Model(models.ArticleModel{}).Group("user_id").
+//	global_gse.DB.Model(models.ArticleModel{}).Group("user_id").Select("count(*)").Scan(&count)
+//	global_gse.DB.Model(models.ArticleModel{}).Group("user_id").
 //		Offset(cr.GetOffset()).
 //		Limit(cr.GetLimit()).
 //		Select("user_id").Scan(&userIDList)
@@ -29,7 +29,7 @@ type AuthRecommendResponse struct {
 //		}
 //	}
 //	var userList []models.UserModel
-//	global.DB.Find(&userList, "id in ?", userIDList)
+//	global_gse.DB.Find(&userList, "id in ?", userIDList)
 //	var list = make([]AuthRecommendResponse, 0)
 //	for _, model := range userList {
 //		list = append(list, AuthRecommendResponse{

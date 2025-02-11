@@ -6,6 +6,7 @@ import (
 	"blogv2/api/banner_api"
 	"blogv2/api/captcha_api"
 	"blogv2/api/comment_api"
+	"blogv2/api/data_api"
 	"blogv2/api/feed_back_api"
 	"blogv2/api/image_api"
 	"blogv2/api/log_api"
@@ -26,6 +27,7 @@ type Api struct {
 	SearchApi   search_api.SearchApi
 	AiApi       ai_api.AiApi
 	FeedBackApi feed_back_api.FeedBackApi
+	DataApi     data_api.DataApi
 }
 
 var App = Api{}

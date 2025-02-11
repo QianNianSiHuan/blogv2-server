@@ -27,6 +27,7 @@ func Run() {
 	CommentRouter(nr)
 	SearchRouter(nr)
 	FeedBackRouter(nr)
+	DataRouter(nr)
 	addr := global.Config.System.Addr()
 	err := r.Run(addr)
 	if err != nil {

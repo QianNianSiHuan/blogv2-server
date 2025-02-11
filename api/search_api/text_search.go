@@ -5,6 +5,7 @@ import (
 	"blogv2/common/res"
 	"blogv2/global"
 	"blogv2/models"
+	"blogv2/service/redis_service/redis_article"
 	"blogv2/service/text_service"
 	"context"
 	"encoding/json"
@@ -32,11 +33,34 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
-	if global.ESClient == nil {
+	if global.ESClient == nil && global.Redis == nil {
 		// 服务降级，用户可能没有配置es
 		_list, count, _ := common.ListQuery(models.TextModel{}, common.Options{
 			PageInfo: cr.PageInfo,
 			Likes:    []string{"head", "body"},
+		})
+
+		var list = make([]TextSearchResponse, 0)
+		for _, model := range _list {
+			list = append(list, TextSearchResponse{
+				ArticleID: model.ArticleID,
+				Head:      model.Head,
+				Body:      model.Body,
+				Flag:      model.Head,
+			})
+		}
+
+		res.SuccessWithList(c, list, count)
+		return
+	}
+
+	if global.ESClient == nil && global.Redis != nil {
+		idList := redis_article.GetTextSearchIndex(cr.Key)
+		cr.Key = ""
+		query := global.DB.Where("id in ?", idList)
+		_list, count, _ := common.ListQuery(models.TextModel{}, common.Options{
+			PageInfo: cr.PageInfo,
+			Where:    query,
 		})
 
 		var list = make([]TextSearchResponse, 0)
@@ -85,7 +109,6 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 
 	for _, hit := range result.Hits.Hits {
 		var item text_service.TextModel
-		fmt.Printf("------------------>%s", hit.Source)
 		err = json.Unmarshal(hit.Source, &item)
 		fmt.Printf("%s", item)
 		if err != nil {

@@ -76,7 +76,7 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 
 		// 对收藏夹进行加1
 		redis_article.SetCacheCollect(cr.ArticleID, true)
-		//global.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count + 1"))
+		//global_gse.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count + 1"))
 		return
 	}
 	// 取消收藏

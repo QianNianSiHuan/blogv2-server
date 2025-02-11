@@ -11,11 +11,11 @@ func Cron() {
 	crontab := cron.New(cron.WithSeconds(), cron.WithLocation(timezone))
 	//每天两点同步redis数据
 	crontab.Start()
-	EntryID, err := crontab.AddFunc("0 0  2 * * *", SyncArticle)
+	EntryID, err := crontab.AddFunc("*/60 * * * * *", SyncArticle)
 	if err != nil {
 		logrus.Errorf("EntryID: %d , err: %s", EntryID, err)
 	}
-	EntryID, err = crontab.AddFunc("0 0  3 * * *", SyncArticle)
+	EntryID, err = crontab.AddFunc("*/60 * * * * *", SyncComment)
 	if err != nil {
 		logrus.Errorf("EntryID: %d , err: %s", EntryID, err)
 	}

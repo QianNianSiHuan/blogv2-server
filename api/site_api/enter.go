@@ -6,6 +6,7 @@ import (
 	"blogv2/core"
 	"blogv2/global"
 	"blogv2/middleware"
+	"blogv2/service/redis_service/redis_site"
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -41,6 +42,7 @@ func (SiteApi) SiteInfoView(c *gin.Context) {
 		res.FailWithError(c, err)
 	}
 	if cr.Name == "site" {
+		redis_site.SetFlow()
 		global.Config.Site.About.Version = global.Version
 		res.SuccessWithData(c, SiteInfoResponse{
 			Site: global.Config.Site,

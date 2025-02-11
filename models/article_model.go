@@ -6,6 +6,7 @@ import (
 	"blogv2/models/enum"
 	"blogv2/service/text_service"
 	_ "embed"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -73,6 +74,7 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 	var list []TextModel
 
 	if len(textList) == 0 {
+		fmt.Println("------------------------------>textList")
 		return nil
 	}
 
@@ -84,6 +86,21 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 		})
 	}
 	err = tx.Create(&list).Error
+	var textParticipleList []text_service.ParticipleTextModel
+	for _, _list := range list {
+		textParticiple := text_service.ParticipleTextModel{
+			ID: _list.ID,
+			TextModel: text_service.TextModel{
+				ArticleID: _list.ArticleID,
+				Head:      _list.Head,
+				Body:      _list.Body,
+			},
+		}
+		textParticipleList = append(textParticipleList, textParticiple)
+	}
+
+	//redis分词索引
+	text_service.Participle(textParticipleList)
 	if err != nil {
 		logrus.Error(err)
 		return nil
@@ -99,6 +116,7 @@ func (a *ArticleModel) AfterDelete(tx *gorm.DB) (err error) {
 		logrus.Infof("删除全文记录 %d", len(textList))
 		tx.Delete(&textList)
 	}
+	text_service.DeleteTextParticiple(a.ID)
 	return nil
 }
 

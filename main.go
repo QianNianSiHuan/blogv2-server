@@ -22,6 +22,8 @@ func main() {
 	global.SensitiveWords = core.InitSensitiveWords()
 	global.AhoCorasick = core.InitAhoCorasick()
 	core.InitObserver()
+	core.InitGse() //分词
+	core.InitRedisSearch()
 	flags.Run()
 	core.InitMysqlEs()
 	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)

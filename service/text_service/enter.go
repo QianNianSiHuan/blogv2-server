@@ -2,7 +2,7 @@ package text_service
 
 import (
 	"blogv2/global"
-	"fmt"
+	"github.com/siddontang/go/log"
 	"strings"
 )
 
@@ -42,9 +42,7 @@ func MdContentTransformation(id uint, title string, content string) (list []Text
 	}
 
 	if len(headList) != len(bodyList) {
-		fmt.Println("headList与bodyList 不一致")
-		fmt.Printf("%q  %d\n", headList, len(headList))
-		fmt.Printf("%q  %d\n", bodyList, len(bodyList))
+		log.Errorf("headList与bodyList 不一致 \n headList:%q  %d\\\n bodyList: %q  %d\n", headList, len(headList), bodyList, len(bodyList))
 		return
 	}
 
@@ -55,9 +53,7 @@ func MdContentTransformation(id uint, title string, content string) (list []Text
 			Body:      bodyList[i],
 		})
 	}
-
 	return
-
 }
 
 func getHead(head string) string {
@@ -73,7 +69,7 @@ func getBody(body string) string {
 // ReplaceSensitiveWords 替换敏感词
 func ReplaceSensitiveWords(text string, replaceWord string) string {
 	// 将匹配位置转换为区间
-	//hits := ahocorasick.NewStringMatcher(global.SensitiveWords).Match([]byte(text))
+	//hits := ahocorasick.NewStringMatcher(global_gse.SensitiveWords).Match([]byte(text))
 	hits := global.AhoCorasick.Match([]byte(text))
 	for _, val := range hits {
 		oldReplaceWord := global.SensitiveWords[val]

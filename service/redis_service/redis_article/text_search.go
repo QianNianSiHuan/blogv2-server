@@ -2,6 +2,7 @@ package redis_article
 
 import (
 	"blogv2/global"
+	"blogv2/global/global_gse"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -9,33 +10,44 @@ import (
 
 func SetTextSearchIndex(textID uint, words []string) {
 	for _, word := range words {
-		global.Redis.SAdd(word, textID)
+		if word == "" {
+			continue
+		}
+		global.Redis.SAdd(fmt.Sprintf("text_%s", word), textID)
 	}
 }
-func GetTextSearchIndex(word string) []string {
-	vals, _ := global.Redis.SMembers(word).Result()
+func GetTextSearchIndex(text string) []string {
+	words := global_gse.Gse.CutSearch(text, true)
+	var _words []string
+	for _, word := range words {
+		_words = append(_words, fmt.Sprintf("text_%s", word))
+	}
+	vals, _ := global.Redis.SUnion(_words...).Result()
 	return vals
 }
 
 func DeleteTextSearchIndex(words []string, textID uint) {
 	for _, word := range words {
-		global.Redis.SRem(word, textID)
+		if word == "" {
+			continue
+		}
+		global.Redis.SRem(fmt.Sprintf("text_%s", word), textID)
 	}
 }
 
-type articleSearchType string
+type textSearchType string
 
 const (
-	ArticleSearchWordsType articleSearchType = "article_search_words"
+	TextSearchWords textSearchType = "text_search_words"
 )
 
 func SetTextSearchWords(articleID uint, textID uint, words []string) {
 	_words, _ := json.Marshal(words)
-	global.Redis.HSet(string(ArticleSearchWordsType)+fmt.Sprintf("_%d", articleID), strconv.Itoa(int(textID)), _words)
+	global.Redis.HSet(string(TextSearchWords)+fmt.Sprintf("_%d", articleID), strconv.Itoa(int(textID)), _words)
 }
 
 func GetTextSearchWords(articleID uint) map[string]string {
-	result, _ := global.Redis.HGetAll(string(ArticleSearchWordsType) + fmt.Sprintf("_%d", articleID)).Result()
+	result, _ := global.Redis.HGetAll(string(TextSearchWords) + fmt.Sprintf("_%d", articleID)).Result()
 	return result
 }
 
@@ -52,5 +64,5 @@ func DeleteTextSearchIndexWords(articleID uint) {
 }
 
 func deleteTextSearchWordsIndex(articleID uint) {
-	global.Redis.HDel(string(ArticleSearchWordsType) + fmt.Sprintf("_%d", articleID))
+	global.Redis.HDel(string(TextSearchWords) + fmt.Sprintf("_%d", articleID))
 }

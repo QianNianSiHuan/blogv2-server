@@ -4,9 +4,9 @@ import (
 	"blogv2/global"
 	"blogv2/models/ctype"
 	"blogv2/models/enum"
+	"blogv2/service/redis_service/redis_article"
 	"blogv2/service/text_service"
 	_ "embed"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -70,11 +70,17 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 	if a.Status != enum.ArticleStatusPublished {
 		return nil
 	}
+	for _, tag := range a.TagList {
+		if tag == "" {
+			continue
+		}
+		redis_article.SetTagAgg(tag, a.ID)
+		redis_article.SetTagAggAdd(tag)
+	}
 	textList := text_service.MdContentTransformation(a.ID, a.Title, a.Content)
 	var list []TextModel
 
 	if len(textList) == 0 {
-		fmt.Println("------------------------------>textList")
 		return nil
 	}
 
@@ -100,7 +106,7 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 	}
 
 	//redis分词索引
-	text_service.Participle(textParticipleList)
+	text_service.TextParticiple(textParticipleList)
 	if err != nil {
 		logrus.Error(err)
 		return nil
@@ -110,13 +116,16 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 
 func (a *ArticleModel) AfterDelete(tx *gorm.DB) (err error) {
 	// 删除之后
+	redis_article.RemoveTagAgg(a.ID, a.TagList...)
 	var textList []TextModel
 	tx.Find(&textList, "article_id = ?", a.ID)
 	if len(textList) > 0 {
 		logrus.Infof("删除全文记录 %d", len(textList))
 		tx.Delete(&textList)
 	}
+	text_service.DeleteArticleParticiple(a.ID)
 	text_service.DeleteTextParticiple(a.ID)
+	redis_article.ClearArticleSortByID(a.ID)
 	return nil
 }
 

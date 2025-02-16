@@ -68,7 +68,7 @@ func (ArticleApi) ArticleLookView(c *gin.Context) {
 		return
 	}
 
-	redis_article.SetCacheLook(cr.ArticleID, true)
+	redis_article.SetCacheLook(cr.ArticleID, 1)
 	redis_article.SetUserArticleHistoryCache(cr.ArticleID, claims.UserID)
 	res.SuccessWithMsg(c, "成功")
 }

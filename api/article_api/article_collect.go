@@ -3,9 +3,9 @@ package article_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
-	"blogv2/service/redis_service/redis_article"
 	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -15,6 +15,10 @@ import (
 type ArticleCollectRequest struct {
 	ArticleID uint `json:"articleID" binding:"required"`
 	CollectID uint `json:"collectID"`
+}
+type ArticleCollectResponse struct {
+	Collect   bool `json:"collect"`
+	IsCollect bool `json:"isCollect"`
 }
 
 func (ArticleApi) ArticleCollectView(c *gin.Context) {
@@ -46,7 +50,7 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 		cr.CollectID = collectModel.ID
 	} else {
 		// 判断收藏夹是否存在，并且是否是自己创建的
-		err = global.DB.Take(&collectModel, "user_id = ? ", claims.UserID).Error
+		err = global.DB.Take(&collectModel, "user_id = ? and  id = ?", claims.UserID, cr.CollectID).Error
 		if err != nil {
 			res.FailWithMsg(c, "收藏夹不存在")
 			return
@@ -72,22 +76,34 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 			res.FailWithMsg(c, "收藏失败")
 			return
 		}
-		res.SuccessWithMsg(c, "收藏成功")
+
+		res.Success(c, "收藏成功", ArticleCollectResponse{
+			Collect:   true,
+			IsCollect: true})
 
 		// 对收藏夹进行加1
-		redis_article.SetCacheCollect(cr.ArticleID, true)
+		//redis_article.SetCacheCollect(cr.ArticleID, true)
+		global_observer.ArticleNotifier.AfterArticleCollectIncrNotify(article.ID)
 		//global_gse.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count + 1"))
 		return
 	}
 	// 取消收藏
-	redis_article.SetCacheCollect(cr.ArticleID, false)
+	//redis_article.SetCacheCollect(cr.ArticleID, false)
 	err = global.DB.Delete(&articleCollect).Error
 	if err != nil {
 		res.FailWithMsg(c, "取消收藏失败")
 		return
 	}
-	res.SuccessWithMsg(c, "取消收藏成功")
+	var articleCollectList []models.UserArticleCollectModel
+	global.DB.Find(&articleCollectList, "user_id = ? and article_id = ? ", claims.UserID, cr.ArticleID)
+	var isCollect bool
+	if len(articleCollectList) > 0 {
+		isCollect = true
+	}
+	res.Success(c, "取消收藏成功", ArticleCollectResponse{Collect: false,
+		IsCollect: isCollect})
 	//TODO:收藏数同步缓存
+	global_observer.ArticleNotifier.AfterArticleCollectDecNotify(article.ID)
 	global.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count - 1"))
 	return
 }

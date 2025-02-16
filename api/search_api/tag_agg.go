@@ -5,6 +5,7 @@ import (
 	"blogv2/common/res"
 	"blogv2/global"
 	"blogv2/models"
+	"blogv2/service/redis_service/redis_article"
 	"context"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,21 @@ func (SearchApi) TagAggView(c *gin.Context) {
 		return
 	}
 	var list = make([]TagAggResponse, 0)
+	if global.Redis != nil {
+		mp := redis_article.GetTagAggAllCount()
+		for tag, count := range mp {
+			list = append(list, TagAggResponse{
+				Tag:          tag,
+				ArticleCount: count,
+			})
+		}
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].ArticleCount > list[j].ArticleCount
+		})
+		list = list[:10]
+		res.SuccessWithList(c, list, int64(len(list)))
+		return
+	}
 	if global.ESClient == nil {
 		var articleList []models.ArticleModel
 		global.DB.Find(&articleList, "tag_list <> ''")

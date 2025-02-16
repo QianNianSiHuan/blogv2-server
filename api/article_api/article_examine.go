@@ -3,6 +3,7 @@ package article_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func (ArticleApi) ArticleExamineView(c *gin.Context) {
 	}
 
 	global.DB.Model(&article).Update("status", cr.Status)
-
+	global_observer.ArticleNotifier.AfterArticleExamineNotify(article.ID, int8(cr.Status))
 	// TODO: 给文章的发布人发一个系统通知
 
 	res.SuccessWithMsg(c, "审核成功")

@@ -80,10 +80,10 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	}
 
 	// TODO: 从缓存里面获取浏览量和点赞数
-	collectCount := redis_article.GetCacheCollect(article.ID)
-	diggCount := redis_article.GetCacheDigg(article.ID)
-	lookCount := redis_article.GetCacheLook(article.ID)
-	CommentCount := redis_article.GetCacheComment(article.ID)
+	collectCount := redis_article.GetCacheCollect(article.ID, 0)
+	diggCount := redis_article.GetCacheDigg(article.ID, 0)
+	lookCount := redis_article.GetCacheLook(article.ID, 0)
+	CommentCount := redis_article.GetCacheComment(article.ID, 0)
 
 	data.DiggCount = article.DiggCount + diggCount
 	data.CollectCount = article.CollectCount + collectCount
@@ -94,5 +94,5 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 		data.CategoryTitle = &article.CategoryModel.Title
 	}
 	res.SuccessWithData(c, data)
-	global_observer.AfterDetailNotifier.Notify(c, article.ID)
+	global_observer.ArticleNotifier.AfterArticleLookNotify(c, article.ID)
 }

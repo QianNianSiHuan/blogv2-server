@@ -33,11 +33,13 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 		res.FailWithError(c, err)
 		return
 	}
-	if global.ESClient == nil && global.Redis == nil {
-		// 服务降级，用户可能没有配置es
+	if global.Redis != nil {
+		idList := redis_article.GetTextSearchIndex(cr.Key)
+		cr.Key = ""
+		query := global.DB.Where("id in ?", idList)
 		_list, count, _ := common.ListQuery(models.TextModel{}, common.Options{
 			PageInfo: cr.PageInfo,
-			Likes:    []string{"head", "body"},
+			Where:    query,
 		})
 
 		var list = make([]TextSearchResponse, 0)
@@ -54,13 +56,11 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 		return
 	}
 
-	if global.ESClient == nil && global.Redis != nil {
-		idList := redis_article.GetTextSearchIndex(cr.Key)
-		cr.Key = ""
-		query := global.DB.Where("id in ?", idList)
+	if global.ESClient == nil {
+		// 服务降级，用户可能没有配置es
 		_list, count, _ := common.ListQuery(models.TextModel{}, common.Options{
 			PageInfo: cr.PageInfo,
-			Where:    query,
+			Likes:    []string{"head", "body"},
 		})
 
 		var list = make([]TextSearchResponse, 0)

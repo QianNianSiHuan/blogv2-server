@@ -13,11 +13,11 @@ func SyncArticle() {
 
 	runtimeLog := log_service.NewRuntimeLog("数据库定时同步", 1)
 	runtimeLog.SetTitle("文章信息同步")
-	collectMap := redis_article.GetAllCacheCollect()
-	diggMap := redis_article.GetAllCacheDigg()
-	lookMap := redis_article.GetAllCacheLook()
-	commentMap := redis_article.GetAllCacheComment()
-	
+	collectMap := redis_article.GetAllCacheCollect(1)
+	diggMap := redis_article.GetAllCacheDigg(1)
+	lookMap := redis_article.GetAllCacheLook(1)
+	commentMap := redis_article.GetAllCacheComment(1)
+
 	var list []models.ArticleModel
 	for _, model := range list {
 		collect := collectMap[model.ID]

@@ -20,35 +20,22 @@ const (
 
 // set 修改指定类型的文章计数（增加或减少）。
 func set(t articleCacheType, articleID uint, n int) {
-	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(articleID))).Int()
-	num += n
-	global.Redis.HSet(string(t), strconv.Itoa(int(articleID)), num)
+	nowDate := time.Now().Format("20060102")
+	global.Redis.HIncrBy(string(t)+fmt.Sprintf("_%s", nowDate), strconv.Itoa(int(articleID)), int64(n))
 }
 
 // SetCacheLook 设置文章的查看次数。
-func SetCacheLook(articleID uint, increase bool) {
-	var n = 1
-	if !increase {
-		n = -1
-	}
+func SetCacheLook(articleID uint, n int) {
 	set(articleCacheLook, articleID, n)
 }
 
 // SetCacheDigg 设置文章的点赞数。
-func SetCacheDigg(articleID uint, increase bool) {
-	var n = 1
-	if !increase {
-		n = -1
-	}
+func SetCacheDigg(articleID uint, n int) {
 	set(articleCacheDigg, articleID, n)
 }
 
 // SetCacheCollect 设置文章的收藏数。
-func SetCacheCollect(articleID uint, increase bool) {
-	var n = 1
-	if !increase {
-		n = -1
-	}
+func SetCacheCollect(articleID uint, n int) {
 	set(articleCacheCollect, articleID, n)
 }
 func SetCacheComment(articleID uint, n int) {
@@ -56,32 +43,34 @@ func SetCacheComment(articleID uint, n int) {
 }
 
 // get 获取指定类型的文章计数。
-func get(t articleCacheType, articleID uint) int {
-	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(articleID))).Int()
+func get(t articleCacheType, articleID uint, day int) int {
+	nowDate := time.Now().Add(time.Duration(-day*24) * time.Hour).Format("20060102")
+	num, _ := global.Redis.HGet(string(t)+fmt.Sprintf("_%s", nowDate), strconv.Itoa(int(articleID))).Int()
 	return num
 }
 
 // GetCacheLook 获取文章的查看次数。
-func GetCacheLook(articleID uint) int {
-	return get(articleCacheLook, articleID)
+func GetCacheLook(articleID uint, day int) int {
+	return get(articleCacheLook, articleID, day)
 }
 
 // GetCacheDigg 获取文章的点赞数。
-func GetCacheDigg(articleID uint) int {
-	return get(articleCacheDigg, articleID)
+func GetCacheDigg(articleID uint, day int) int {
+	return get(articleCacheDigg, articleID, day)
 }
 
 // GetCacheCollect 获取文章的收藏数。
-func GetCacheCollect(articleID uint) int {
-	return get(articleCacheCollect, articleID)
+func GetCacheCollect(articleID uint, day int) int {
+	return get(articleCacheCollect, articleID, day)
 }
-func GetCacheComment(articleID uint) int {
-	return get(articleCacheComment, articleID)
+func GetCacheComment(articleID uint, day int) int {
+	return get(articleCacheComment, articleID, day)
 }
 
-// GetAll 获取所有文章的指定类型计数。
-func GetAll(t articleCacheType) (mps map[uint]int) {
-	res, err := global.Redis.HGetAll(string(t)).Result()
+// getAll 获取所有文章的指定类型计数。
+func getAll(t articleCacheType, day int) (mps map[uint]int) {
+	nowDate := time.Now().Add(time.Duration(-day*24) * time.Hour).Format("20060102")
+	res, err := global.Redis.HGetAll(string(t) + fmt.Sprintf("_%s", nowDate)).Result()
 	if err != nil {
 		return
 	}
@@ -95,21 +84,21 @@ func GetAll(t articleCacheType) (mps map[uint]int) {
 }
 
 // GetAllCacheLook 获取所有文章的查看次数。
-func GetAllCacheLook() (mps map[uint]int) {
-	return GetAll(articleCacheLook)
+func GetAllCacheLook(day int) (mps map[uint]int) {
+	return getAll(articleCacheLook, day)
 }
 
 // GetAllCacheDigg 获取所有文章的点赞数。
-func GetAllCacheDigg() (mps map[uint]int) {
-	return GetAll(articleCacheDigg)
+func GetAllCacheDigg(day int) (mps map[uint]int) {
+	return getAll(articleCacheDigg, day)
 }
 
 // GetAllCacheCollect 获取所有文章的收藏数。
-func GetAllCacheCollect() (mps map[uint]int) {
-	return GetAll(articleCacheCollect)
+func GetAllCacheCollect(day int) (mps map[uint]int) {
+	return getAll(articleCacheCollect, day)
 }
-func GetAllCacheComment() (mps map[uint]int) {
-	return GetAll(articleCacheComment)
+func GetAllCacheComment(day int) (mps map[uint]int) {
+	return getAll(articleCacheComment, day)
 }
 
 func SetUserArticleHistoryCache(articleID, userID uint) {

@@ -3,8 +3,8 @@ package comment_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
-	"blogv2/service/redis_service/redis_comment"
 	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -38,13 +38,15 @@ func (CommentApi) CommentDiggView(c *gin.Context) {
 			res.FailWithMsg(c, "点赞失败")
 			return
 		}
-		redis_comment.SetCacheDigg(cr.ID, 1)
+		//redis_comment.SetCacheDigg(cr.ID, 1)
 		res.SuccessWithMsg(c, "点赞成功")
+		global_observer.CommentNotifier.AfterCommentDiggIncrNotify(userDiggComment.CommentID)
 		return
 	}
 	// 取消点赞
 	global.DB.Model(models.CommentDiggModel{}).Delete("user_id = ? and comment_id = ?", claims.UserID, comment.ID)
 	res.SuccessWithMsg(c, "取消点赞成功")
-	redis_comment.SetCacheDigg(cr.ID, -1)
+	//redis_comment.SetCacheDigg(cr.ID, -1)
+	global_observer.CommentNotifier.AfterCommentDiggDecNotify(userDiggComment.CommentID)
 	return
 }

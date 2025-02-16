@@ -3,11 +3,10 @@ package comment_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/comment_service"
-	"blogv2/service/redis_service/redis_article"
-	"blogv2/service/redis_service/redis_comment"
 	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +51,8 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 		if len(parentList) > 0 {
 			model.RootParentID = &parentList[len(parentList)-1].ID
 			for _, commentModel := range parentList {
-				redis_comment.SetCacheApply(commentModel.ID, 1)
+				//redis_comment.SetCacheApply(commentModel.ID, 1)
+				global_observer.CommentNotifier.AfterCommentSubIncrNotify(commentModel.ID)
 			}
 		}
 	}
@@ -64,6 +64,6 @@ func (CommentApi) CommentCreateView(c *gin.Context) {
 		res.SuccessWithMsg(c, "评论发布失败")
 		return
 	}
-	redis_article.SetCacheComment(cr.ArticleID, 1)
+	global_observer.ArticleNotifier.AfterArticleCommentIncrNotify(article.ID)
 	res.SuccessWithMsg(c, "评论发布成功")
 }

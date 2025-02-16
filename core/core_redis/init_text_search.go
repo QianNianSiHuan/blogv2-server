@@ -1,4 +1,4 @@
-package core
+package core_redis
 
 import (
 	"blogv2/global"
@@ -7,9 +7,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func InitRedisSearch() {
+func initRedisTextSearch() {
 	var list []text_service.ParticipleTextModel
 	global.DB.Model(&models.TextModel{}).Find(&list)
-	text_service.Participle(list)
+	text_service.TextParticiple(list)
 	logrus.Info("redis全文查询索引构建完成")
 }

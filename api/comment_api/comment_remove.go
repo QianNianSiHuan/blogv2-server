@@ -3,10 +3,10 @@ package comment_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/comment_service"
-	"blogv2/service/redis_service/redis_comment"
 	jwts "blogv2/utils/jwt"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -39,17 +39,17 @@ func (CommentApi) CommentRemoveView(c *gin.Context) {
 
 	// 找所有的子评论，还要找所有的父评论
 	subList := comment_service.GetCommentOneDimensional(model.ID)
-
 	if model.ParentID != nil {
 		// 有父评论
 		parentList := comment_service.GetParents(*model.ParentID)
 		for _, commentModel := range parentList {
-			redis_comment.SetCacheApply(commentModel.ID, -len(subList))
+			//redis_comment.SetCacheApply(commentModel.ID, -len(subList))
+			global_observer.CommentNotifier.AfterCommentSubDecNotify(commentModel.ID, -len(subList))
 		}
 	}
 	// 删评论
 	global.DB.Delete(&subList)
-
+	global_observer.ArticleNotifier.AfterArticleCommentDecNotify(model.ArticleID, -len(subList))
 	msg := fmt.Sprintf("删除成功，共删除评论%d条", len(subList))
 	res.SuccessWithMsg(c, msg)
 

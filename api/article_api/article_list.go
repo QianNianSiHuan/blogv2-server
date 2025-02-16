@@ -147,10 +147,10 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	}, options)
 
 	var list = make([]ArticleListResponse, 0)
-	collectMap := redis_article.GetAllCacheCollect()
-	diggMap := redis_article.GetAllCacheDigg()
-	lookMap := redis_article.GetAllCacheLook()
-	commentMap := redis_article.GetAllCacheComment()
+	collectMap := redis_article.GetAllCacheCollect(0)
+	diggMap := redis_article.GetAllCacheDigg(0)
+	lookMap := redis_article.GetAllCacheLook(0)
+	commentMap := redis_article.GetAllCacheComment(0)
 	for _, model := range _list {
 		model.Content = ""
 		model.DiggCount = model.DiggCount + diggMap[model.ID]

@@ -1,6 +1,8 @@
 package models
 
-import _ "embed"
+import (
+	_ "embed"
+)
 
 type TextModel struct {
 	Model

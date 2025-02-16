@@ -15,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
+	"slices"
+	"strconv"
 )
 
 type ArticleSearchRequest struct {
@@ -57,10 +59,106 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		return
 	}
 	topArticleIDList := getAdminTopArticleIDList()
-	collectMap := redis_article.GetAllCacheCollect()
-	diggMap := redis_article.GetAllCacheDigg()
-	lookMap := redis_article.GetAllCacheLook()
-	commentMap := redis_article.GetAllCacheComment()
+	collectMap := redis_article.GetAllCacheCollect(0)
+	diggMap := redis_article.GetAllCacheDigg(0)
+	lookMap := redis_article.GetAllCacheLook(0)
+	commentMap := redis_article.GetAllCacheComment(0)
+	if global.Redis != nil {
+		var tagsMap map[string][]string
+		var tagArticleList []string
+		var sortArticleList []string
+		var articleList []string
+		where := global.DB.Where("")
+		if cr.Tag != "" {
+			tagsMap = redis_article.GetTagAggAll()
+			tagArticleList = tagsMap[cr.Tag]
+		}
+		var articleTopMap = map[uint]bool{}
+		for _, u := range topArticleIDList {
+			articleTopMap[u] = true
+		}
+		switch cr.Type {
+		case 0:
+
+		case 1:
+			where.Order("created_at desc")
+		case 2:
+			commentSort := redis_article.GetAllCacheCommentSort()
+			for _, Z := range commentSort {
+				sortArticleList = append(sortArticleList, Z.Member.(string))
+			}
+		case 3:
+			diggSort := redis_article.GetAllCacheDiggSort()
+			for _, Z := range diggSort {
+				sortArticleList = append(sortArticleList, Z.Member.(string))
+			}
+		case 4:
+			collectSort := redis_article.GetAllCacheCollectSort()
+			for _, Z := range collectSort {
+				sortArticleList = append(sortArticleList, Z.Member.(string))
+			}
+		}
+
+		//tag加指定排序
+		if len(tagArticleList) > 0 && len(sortArticleList) > 0 {
+			slices.Reverse(sortArticleList)
+			for _, sortArticle := range sortArticleList {
+				for _, tagArticle := range tagArticleList {
+					if sortArticle == tagArticle {
+						articleList = append(articleList, tagArticle)
+					}
+				}
+			}
+			where.Where("id in ?", articleList)
+		}
+		//有tag,没有排序
+		if len(sortArticleList) == 0 && len(tagArticleList) > 0 {
+			slices.Reverse(tagArticleList)
+			articleList = tagArticleList
+			where.Where("id in ?", articleList)
+		}
+		//没有tag,有排序
+		if len(tagArticleList) == 0 && len(sortArticleList) > 0 {
+			articleList = sortArticleList
+			where.Where("id in ?", articleList)
+		}
+		if cr.Type != 1 && cr.Type != 2 {
+			var _article []uint
+			for _, article := range articleList {
+				id, _ := strconv.Atoi(article)
+				_article = append(_article, uint(id))
+			}
+			topArticleIDList = append(topArticleIDList, _article...)
+		}
+
+		_list, count, _ := common.ListQuery(models.ArticleModel{}, common.Options{
+			Preloads:     []string{"CategoryModel", "UserModel"},
+			PageInfo:     cr.PageInfo,
+			Likes:        []string{"title", "abstract"},
+			DefaultOrder: sql.ConvertSliceOrderSql(topArticleIDList),
+			Where:        where,
+		})
+		var list = make([]ArticleListResponse, 0)
+		for _, model := range _list {
+			model.Content = ""
+			model.DiggCount = model.DiggCount + diggMap[model.ID]
+			model.CollectCount = model.CollectCount + collectMap[model.ID]
+			model.LookCount = model.LookCount + lookMap[model.ID]
+			model.CommentCount = model.CommentCount + commentMap[model.ID]
+			item := ArticleListResponse{
+				ArticleModel: model,
+				AdminTop:     articleTopMap[model.ID],
+				UserNickname: model.UserModel.Nickname,
+				UserAvatar:   model.UserModel.Avatar,
+			}
+			if model.CategoryModel != nil {
+				item.CategoryTitle = &model.CategoryModel.Title
+			}
+			list = append(list, item)
+		}
+		res.SuccessWithList(c, list, count)
+		return
+	}
 	if global.ESClient == nil {
 		// 服务降级，用户可能没有配置es
 		where := global.DB.Where("")
@@ -87,7 +185,6 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 			DefaultOrder: sql.ConvertSliceOrderSql(topArticleIDList),
 			Where:        where,
 		})
-
 		var list = make([]ArticleListResponse, 0)
 		for _, model := range _list {
 			model.Content = ""

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"blogv2/service/redis_service/redis_article"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +15,6 @@ type UserArticleCollectModel struct {
 }
 
 func (u UserArticleCollectModel) BeforeDelete(tx *gorm.DB) (err error) {
-	redis_article.SetCacheCollect(u.ArticleID, false)
+	//redis_article.SetCacheCollect(u.ArticleID, -1)
 	return
 }

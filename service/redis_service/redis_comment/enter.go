@@ -2,8 +2,10 @@ package redis_comment
 
 import (
 	"blogv2/global"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"strconv"
+	"time"
 )
 
 type commentCacheType string
@@ -14,9 +16,8 @@ const (
 )
 
 func set(t commentCacheType, commentID uint, n int) {
-	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(commentID))).Int()
-	num += n
-	global.Redis.HSet(string(t), strconv.Itoa(int(commentID)), num)
+	nowTime := time.Now().Format("20060102")
+	global.Redis.HIncrBy(string(t)+fmt.Sprintf("_%s", nowTime), strconv.Itoa(int(commentID)), int64(n))
 }
 func SetCacheApply(commentID uint, n int) {
 	set(commentCacheApply, commentID, n)
@@ -26,7 +27,8 @@ func SetCacheDigg(commentID uint, n int) {
 }
 
 func get(t commentCacheType, commentID uint) int {
-	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(commentID))).Int()
+	nowTime := time.Now().Format("20060102")
+	num, _ := global.Redis.HGet(string(t)+fmt.Sprintf("_%s", nowTime), strconv.Itoa(int(commentID))).Int()
 	return num
 }
 func GetCacheApply(commentID uint) int {
@@ -37,7 +39,8 @@ func GetCacheDigg(commentID uint) int {
 }
 
 func GetAll(t commentCacheType) (mps map[uint]int) {
-	res, err := global.Redis.HGetAll(string(t)).Result()
+	YesterdayTime := time.Now().Add(-24 * time.Hour).Format("20060102")
+	res, err := global.Redis.HGetAll(string(t) + fmt.Sprintf("_%s", YesterdayTime)).Result()
 	if err != nil {
 		return
 	}
@@ -53,7 +56,6 @@ func GetAll(t commentCacheType) (mps map[uint]int) {
 		}
 		mps[uint(iK)] = iN
 	}
-
 	return mps
 }
 
@@ -63,8 +65,11 @@ func GetAllCacheApply() (mps map[uint]int) {
 func GetAllCacheDigg() (mps map[uint]int) {
 	return GetAll(commentCacheDigg)
 }
+
 func Clear() {
-	err := global.Redis.Del("comment_apply_key", "comment_digg_key").Err()
+	YesterdayTime := time.Now().Add(-24 * time.Hour).Format("20060102")
+	err := global.Redis.Del("comment_apply_key"+fmt.Sprintf("_%s", YesterdayTime),
+		"comment_digg_key"+fmt.Sprintf("_%s", YesterdayTime)).Err()
 	if err != nil {
 		logrus.Error(err)
 	}

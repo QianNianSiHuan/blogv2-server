@@ -3,9 +3,9 @@ package article_api
 import (
 	"blogv2/common/res"
 	"blogv2/global"
+	"blogv2/global/global_observer"
 	"blogv2/models"
 	"blogv2/models/enum"
-	"blogv2/service/redis_service/redis_article"
 	jwts "blogv2/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -39,13 +39,14 @@ func (ArticleApi) ArticleDiggView(c *gin.Context) {
 			return
 		}
 		// TODO: 更新点赞数到缓存里面
-		redis_article.SetCacheDigg(cr.ID, true)
+		//redis_article.SetCacheDigg(cr.ID, true)
+		global_observer.ArticleNotifier.AfterArticleDiggIncrNotify(cr.ID)
 		res.SuccessWithMsg(c, "点赞成功")
 		return
 	}
 	// 取消点赞
-	redis_article.SetCacheDigg(cr.ID, false)
+	//redis_article.SetCacheDigg(cr.ID, false)
+	global_observer.ArticleNotifier.AfterArticleDiggDecNotify(cr.ID)
 	global.DB.Delete(&userDiggArticle)
 	res.SuccessWithMsg(c, "取消点赞成功")
-	return
 }

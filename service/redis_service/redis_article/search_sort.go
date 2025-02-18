@@ -3,12 +3,14 @@ package redis_article
 import (
 	"blogv2/global"
 	"github.com/go-redis/redis"
+	"slices"
 	"strconv"
 )
 
 type ArticleSortType string
 
 const (
+	articleAllSort     ArticleSortType = "article_all_sort"
 	articleCommentSort ArticleSortType = "article_comment_sort"
 	articleDiggSort    ArticleSortType = "article_digg_sort"
 	articleCollectSort ArticleSortType = "article_collect_sort"
@@ -63,10 +65,25 @@ func SetCacheCommentSortByCount(articleID uint, count int) {
 	setArticleSortByCount(articleCommentSort, articleID, count)
 }
 
+func SetCacheAllSort(articleID uint) {
+	scores := GetCacheLookSort(articleID) + GetCacheDiggSort(articleID)*2 + GetCacheCommentSort(articleID)*3 + GetCacheCollectSort(articleID)*4
+	global.Redis.ZAdd(string(articleAllSort), redis.Z{
+		Score:  float64(scores),
+		Member: articleID,
+	})
+}
+func SetCacheAllSortIncr(articleID uint, n int) {
+	global.Redis.ZIncrBy(string(articleAllSort), float64(n), strconv.Itoa(int(articleID)))
+}
+
 // get 获取指定类型的文章计数。
 func getArticleSort(t ArticleSortType, articleID uint) int {
-	num, _ := global.Redis.HGet(string(t), strconv.Itoa(int(articleID))).Int()
-	return num
+	count, _ := global.Redis.ZScore(string(t), strconv.Itoa(int(articleID))).Result()
+	return int(count)
+}
+
+func GetCacheAllSort(articleID uint) int {
+	return getArticleSort(articleAllSort, articleID)
 }
 
 // GetCacheLookSort  获取文章的查看次数。
@@ -88,31 +105,38 @@ func GetCacheCommentSort(articleID uint) int {
 }
 
 // GetAllSort  获取所有文章的指定类型计数。
-func GetAllSort(t ArticleSortType) (IDSortList []redis.Z) {
-	IDList, _ := global.Redis.ZRangeByScoreWithScores(string(t), redis.ZRangeBy{
+func GetAllSort(t ArticleSortType) (articleList []string) {
+	ZList, _ := global.Redis.ZRangeByScoreWithScores(string(t), redis.ZRangeBy{
 		Min:    "-inf",
 		Max:    "+inf",
 		Offset: 0,
 		Count:  0,
 	}).Result()
-	return IDList
+	for _, Z := range ZList {
+		articleList = append(articleList, Z.Member.(string))
+	}
+	slices.Reverse(articleList)
+	return
+}
+func GetAllCacheAllSort() []string {
+	return GetAllSort(articleAllSort)
 }
 
 // GetAllCacheLookSort 获取所有文章的查看次数。
-func GetAllCacheLookSort() []redis.Z {
+func GetAllCacheLookSort() []string {
 	return GetAllSort(articleLookSort)
 }
 
 // GetAllCacheDiggSort  获取所有文章的点赞数。
-func GetAllCacheDiggSort() []redis.Z {
+func GetAllCacheDiggSort() []string {
 	return GetAllSort(articleDiggSort)
 }
 
 // GetAllCacheCollectSort  获取所有文章的收藏数。
-func GetAllCacheCollectSort() []redis.Z {
+func GetAllCacheCollectSort() []string {
 	return GetAllSort(articleCollectSort)
 }
-func GetAllCacheCommentSort() []redis.Z {
+func GetAllCacheCommentSort() []string {
 	return GetAllSort(articleCommentSort)
 }
 
@@ -121,8 +145,9 @@ func ClearArticleSortByID(articleID uint) {
 	global.Redis.HDel(string(articleDiggSort), strconv.Itoa(int(articleID)))
 	global.Redis.HDel(string(articleCollectSort), strconv.Itoa(int(articleID)))
 	global.Redis.HDel(string(articleLookSort), strconv.Itoa(int(articleID)))
+	global.Redis.HDel(string(articleAllSort), strconv.Itoa(int(articleID)))
 }
 
 func ArticleSortClear() {
-	global.Redis.Del(string(articleCommentSort), string(articleDiggSort), string(articleCollectSort), string(articleLookSort))
+	global.Redis.Del(string(articleCommentSort), string(articleDiggSort), string(articleCollectSort), string(articleLookSort), string(articleAllSort))
 }

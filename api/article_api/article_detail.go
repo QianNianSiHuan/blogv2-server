@@ -93,6 +93,6 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 	if article.CategoryModel != nil {
 		data.CategoryTitle = &article.CategoryModel.Title
 	}
-	res.SuccessWithData(c, data)
 	global_observer.ArticleNotifier.AfterArticleLookNotify(c, article.ID)
+	res.SuccessWithData(c, data)
 }

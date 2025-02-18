@@ -69,6 +69,7 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		var sortArticleList []string
 		var articleList []string
 		where := global.DB.Where("")
+		where.Where("status = ?", enum.ArticleStatusPublished)
 		if cr.Tag != "" {
 			tagsMap = redis_article.GetTagAggAll()
 			tagArticleList = tagsMap[cr.Tag]
@@ -79,26 +80,16 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		}
 		switch cr.Type {
 		case 0:
-
+			sortArticleList = redis_article.GetAllCacheAllSort()
 		case 1:
 			where.Order("created_at desc")
 		case 2:
-			commentSort := redis_article.GetAllCacheCommentSort()
-			for _, Z := range commentSort {
-				sortArticleList = append(sortArticleList, Z.Member.(string))
-			}
+			sortArticleList = redis_article.GetAllCacheLookSort()
 		case 3:
-			diggSort := redis_article.GetAllCacheDiggSort()
-			for _, Z := range diggSort {
-				sortArticleList = append(sortArticleList, Z.Member.(string))
-			}
+			sortArticleList = redis_article.GetAllCacheDiggSort()
 		case 4:
-			collectSort := redis_article.GetAllCacheCollectSort()
-			for _, Z := range collectSort {
-				sortArticleList = append(sortArticleList, Z.Member.(string))
-			}
+			sortArticleList = redis_article.GetAllCacheCollectSort()
 		}
-
 		//tag加指定排序
 		if len(tagArticleList) > 0 && len(sortArticleList) > 0 {
 			slices.Reverse(sortArticleList)
@@ -122,7 +113,7 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 			articleList = sortArticleList
 			where.Where("id in ?", articleList)
 		}
-		if cr.Type != 1 && cr.Type != 2 {
+		if cr.Type != 2 {
 			var _article []uint
 			for _, article := range articleList {
 				id, _ := strconv.Atoi(article)

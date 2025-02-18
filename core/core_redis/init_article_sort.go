@@ -19,5 +19,6 @@ func initRedisArticleSort(list []text_service.ParticipleArticleModel) {
 		redis_article.SetCacheCommentSortByCount(model.ID, commentCount)
 		redis_article.SetCacheDiggSortByCount(model.ID, diggCount)
 		redis_article.SetCacheLookSortByCount(model.ID, lookCount)
+		redis_article.SetCacheAllSort(model.ID)
 	}
 }

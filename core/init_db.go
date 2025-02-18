@@ -45,5 +45,8 @@ func InitDB() *gorm.DB {
 		logrus.Info("数据库读写配置成功")
 		return db
 	}
+	if global.Config.DB[0].Debug {
+		return db.Debug()
+	}
 	return db
 }

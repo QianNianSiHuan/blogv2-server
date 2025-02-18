@@ -62,5 +62,6 @@ func (a *ArticleLookHistory) AfterArticleLook(c *gin.Context, articleID uint) {
 	}
 	redis_article.SetCacheLook(articleID, 1)
 	redis_article.SetUserArticleHistoryCache(articleID, claims.UserID)
+	redis_article.SetCacheAllSortIncr(articleID, 1)
 	res.SuccessWithMsg(c, "成功")
 }

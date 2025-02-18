@@ -12,8 +12,10 @@ func NewArticleComment() *ArticleComment {
 }
 func (a ArticleComment) AfterArticleCommentIncr(articleID uint) {
 	redis_article.SetCacheComment(articleID, 1)
+	redis_article.SetCacheAllSortIncr(articleID, 3*1)
 }
 
 func (a ArticleComment) AfterArticleCommentDec(articleID uint, n int) {
 	redis_article.SetCacheComment(articleID, n)
+	redis_article.SetCacheAllSortIncr(articleID, -3*1)
 }

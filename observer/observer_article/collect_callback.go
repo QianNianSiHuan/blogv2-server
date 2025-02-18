@@ -11,9 +11,13 @@ func NewArticleCollect() *ArticleCollect {
 func (a ArticleCollect) AfterArticleCollectIncr(articleID uint, status int8) {
 	redis_article.SetCacheCollect(articleID, 1)
 	redis_article.SetCacheCollectSort(articleID, 1)
+	redis_article.SetCacheAllSort(articleID)
+	redis_article.SetCacheAllSortIncr(articleID, 4*1)
 }
 
 func (a ArticleCollect) AfterArticleCollectDec(articleID uint, status int8) {
 	redis_article.SetCacheCollect(articleID, -1)
 	redis_article.SetCacheCollectSort(articleID, -1)
+	redis_article.SetCacheAllSort(articleID)
+	redis_article.SetCacheAllSortIncr(articleID, -4*1)
 }

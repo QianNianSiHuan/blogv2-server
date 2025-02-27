@@ -136,11 +136,11 @@ func (SiteApi) SiteUpdateView(c *gin.Context) {
 	case conf.Site:
 		//判断站点信息更新前端部分
 		global.Config.Site = s
-		err = UpdateSite(s)
-		if err != nil {
-			res.FailWithError(c, err)
-			return
-		}
+		//err = UpdateSite(s)
+		//if err != nil {
+		//	res.FailWithError(c, err)
+		//	return
+		//}
 	case conf.Email:
 		if s.AuthCode == "******" {
 			s.AuthCode = global.Config.Email.AuthCode

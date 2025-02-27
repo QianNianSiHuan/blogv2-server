@@ -1,14 +1,17 @@
 package models
 
-import "blogv2/models/enum"
+import (
+	"blogv2/models/enum"
+	"gorm.io/gorm"
+)
 
 type LogModel struct {
-	Model
+	gorm.Model
 	LogType     enum.LogType      `json:"logType"`
 	Title       string            `gorm:"size:64" json:"title"`
 	Content     string            `json:"content"`
-	Level       enum.LogLevelType `json:"level" json:"level"`
-	UserID      uint              `json:"userID" json:"userID"`
+	Level       enum.LogLevelType `json:"level"`
+	UserID      uint              `json:"userID"`
 	UserModel   UserModel         `gorm:"foreignKey:UserID" json:"-"`
 	IP          string            `gorm:"size:32" json:"ip"`
 	Addr        string            `gorm:"size:64" json:"addr" `

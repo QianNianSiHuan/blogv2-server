@@ -38,7 +38,9 @@ func (SearchApi) TagAggView(c *gin.Context) {
 		sort.Slice(list, func(i, j int) bool {
 			return list[i].ArticleCount > list[j].ArticleCount
 		})
-		list = list[:10]
+		if len(list) > 10 {
+			list = list[:10]
+		}
 		res.SuccessWithList(c, list, int64(len(list)))
 		return
 	}

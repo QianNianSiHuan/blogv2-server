@@ -11,6 +11,8 @@ func initRedisArticleSort(list []text_service.ParticipleArticleModel) {
 	cacheDigg := redis_article.GetAllCacheDigg(1)
 	cacheLook := redis_article.GetAllCacheLook(1)
 	for _, model := range list {
+		text_service.DeleteTextParticiple(model.ID)
+		redis_article.ClearArticleSortByID(model.ID)
 		collectCount := cacheCollect[model.ID] + model.CollectCount
 		commentCount := cacheComment[model.ID] + model.CommentCount
 		diggCount := cacheDigg[model.ID] + model.DiggCount

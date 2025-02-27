@@ -5,6 +5,7 @@ import (
 	"blogv2/global/global_gse"
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strconv"
 )
 
@@ -27,6 +28,7 @@ func GetTextSearchIndex(text string) []string {
 }
 
 func DeleteTextSearchIndex(words []string, textID uint) {
+	fmt.Println(len(words))
 	for _, word := range words {
 		if word == "" {
 			continue
@@ -47,7 +49,11 @@ func SetTextSearchWords(articleID uint, textID uint, words []string) {
 }
 
 func GetTextSearchWords(articleID uint) map[string]string {
-	result, _ := global.Redis.HGetAll(string(TextSearchWords) + fmt.Sprintf("_%d", articleID)).Result()
+	result, err := global.Redis.HGetAll(string(TextSearchWords) + fmt.Sprintf("_%d", articleID)).Result()
+	if err != nil {
+		logrus.Error(err)
+		return nil
+	}
 	return result
 }
 
@@ -57,6 +63,7 @@ func DeleteTextSearchIndexWords(articleID uint) {
 		var words []string
 		var textID int
 		_ = json.Unmarshal([]byte(val), &words)
+		fmt.Println(words)
 		textID, _ = strconv.Atoi(key)
 		DeleteTextSearchIndex(words, uint(textID))
 	}

@@ -4,6 +4,7 @@ import (
 	"blogv2/global/global_gse"
 	"blogv2/models/ctype"
 	"blogv2/service/redis_service/redis_article"
+	"fmt"
 )
 
 type ParticipleTextModel struct {
@@ -24,8 +25,11 @@ type ParticipleArticleModel struct {
 func TextParticiple(textList []ParticipleTextModel) {
 	for _, text := range textList {
 		words := textParticiple(text.Head, text.Body)
+		fmt.Println("分词成功...")
 		redis_article.SetTextSearchIndex(text.ID, words)
+		fmt.Println("分词索引创建成功")
 		redis_article.SetTextSearchWords(text.ArticleID, text.ID, words)
+		fmt.Println("创建成功")
 	}
 }
 

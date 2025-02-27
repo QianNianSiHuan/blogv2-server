@@ -3,7 +3,6 @@ package main
 import (
 	"blogv2/core"
 	"blogv2/core/core_observer"
-	"blogv2/core/core_redis"
 	"blogv2/flags"
 	"blogv2/global"
 	"blogv2/router"
@@ -25,7 +24,7 @@ func main() {
 	global.AhoCorasick = core.InitAhoCorasick()
 	core_observer.InitObserver()
 	core.InitGse() //分词
-	core_redis.InitRedisService()
+	//core_redis.InitRedisService()
 	flags.Run()
 	core.InitMysqlEs()
 	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)

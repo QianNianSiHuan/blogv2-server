@@ -6,9 +6,9 @@ import (
 )
 
 func initRedisTagAgg(list []text_service.ParticipleArticleModel) {
-	redis_article.ClearAllTagAgg()
 	for _, model := range list {
 		for _, tag := range model.TagList {
+			redis_article.RemoveTagAgg(model.ID, tag)
 			redis_article.SetTagAgg(tag, model.ID)
 			redis_article.SetTagAggAdd(tag)
 		}

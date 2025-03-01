@@ -26,9 +26,9 @@ func MdContentTransformation(id uint, title string, content string) (list []Text
 		if !flag && strings.HasPrefix(line, "#") {
 			// 标题行
 			headList = append(headList, getHead(line))
-			if strings.TrimSpace(body) != "" {
-				bodyList = append(bodyList, getBody(body))
-			}
+			//if strings.TrimSpace(body) != "" {
+			bodyList = append(bodyList, getBody(body))
+			//}
 			body = ""
 			continue
 		}

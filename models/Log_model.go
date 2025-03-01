@@ -2,11 +2,10 @@ package models
 
 import (
 	"blogv2/models/enum"
-	"gorm.io/gorm"
 )
 
 type LogModel struct {
-	gorm.Model
+	Model
 	LogType     enum.LogType      `json:"logType"`
 	Title       string            `gorm:"size:64" json:"title"`
 	Content     string            `json:"content"`

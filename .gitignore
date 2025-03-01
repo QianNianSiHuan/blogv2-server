@@ -5,3 +5,7 @@ main
 Logs/*
 uploads/*
 testdata
+
+settings-server.yaml
+settings-dev.yaml
+settings.yaml

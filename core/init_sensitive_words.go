@@ -23,6 +23,7 @@ func InitSensitiveWords() (sensitiveWords []string) {
 }
 
 func InitAhoCorasick() (ahoCorasick *ahocorasick.Matcher) {
+	logrus.Info("开始加载,敏感词匹配")
 	ahoCorasick = ahocorasick.NewStringMatcher(global.SensitiveWords)
 	logrus.Info("敏感词匹配AhoCorasick加载成功")
 	return

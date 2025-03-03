@@ -13,14 +13,14 @@ func SetArticleSearchIndex(textID uint, words []string) {
 		global.Redis.SAdd(fmt.Sprintf("article_%s", word), textID)
 	}
 }
-func GetArticleSearchIndex(text string) []string {
-	words := global_gse.Gse.CutSearch(text, true)
+func GetArticleSearchIndex(text string) (idList []string, words []string) {
+	words = global_gse.Gse.CutSearch(text, true)
 	var _words []string
 	for _, word := range words {
 		_words = append(_words, fmt.Sprintf("article_%s", word))
 	}
-	vals, _ := global.Redis.SUnion(_words...).Result()
-	return vals
+	idList, _ = global.Redis.SUnion(_words...).Result()
+	return
 }
 
 func DeleteArticleSearchIndex(words []string, articleID uint) {

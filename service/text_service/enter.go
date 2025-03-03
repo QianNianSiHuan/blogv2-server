@@ -2,6 +2,7 @@ package text_service
 
 import (
 	"blogv2/global"
+	"fmt"
 	"github.com/siddontang/go/log"
 	"strings"
 )
@@ -74,6 +75,12 @@ func ReplaceSensitiveWords(text string, replaceWord string) string {
 	for _, val := range hits {
 		oldReplaceWord := global.SensitiveWords[val]
 		text = strings.Replace(text, oldReplaceWord, strings.Repeat(replaceWord, len([]rune(oldReplaceWord))), -1)
+	}
+	return text
+}
+func ReplaceSearchWords(text string, words []string) string {
+	for _, word := range words {
+		text = strings.Replace(text, word, fmt.Sprintf("<em>%s</em>", word), -1)
 	}
 	return text
 }

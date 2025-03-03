@@ -34,7 +34,7 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 		return
 	}
 	if global.Redis != nil {
-		idList := redis_article.GetTextSearchIndex(cr.Key)
+		idList, words := redis_article.GetTextSearchIndex(cr.Key)
 		cr.Key = ""
 		query := global.DB.Where("id in ?", idList)
 		_list, count, _ := common.ListQuery(models.TextModel{}, common.Options{
@@ -44,11 +44,14 @@ func (SearchApi) TextSearchView(c *gin.Context) {
 
 		var list = make([]TextSearchResponse, 0)
 		for _, model := range _list {
+			flag := model.Head
+			model.Body = text_service.ReplaceSearchWords(model.Body, words)
+			model.Head = text_service.ReplaceSearchWords(model.Head, words)
 			list = append(list, TextSearchResponse{
 				ArticleID: model.ArticleID,
 				Head:      model.Head,
 				Body:      model.Body,
-				Flag:      model.Head,
+				Flag:      flag,
 			})
 		}
 

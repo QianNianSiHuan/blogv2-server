@@ -7,6 +7,7 @@ import (
 	"blogv2/models"
 	"blogv2/models/enum"
 	"blogv2/service/redis_service/redis_article"
+	"blogv2/service/text_service"
 	jwts "blogv2/utils/jwt"
 	"blogv2/utils/sql"
 	"context"
@@ -84,7 +85,7 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		case 1:
 			where.Order("created_at desc")
 		case 2:
-			sortArticleList = redis_article.GetAllCacheLookSort()
+			sortArticleList = redis_article.GetAllCacheCommentSort()
 		case 3:
 			sortArticleList = redis_article.GetAllCacheDiggSort()
 		case 4:
@@ -100,20 +101,35 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 					}
 				}
 			}
-			where.Where("id in ?", articleList)
 		}
 		//有tag,没有排序
 		if len(sortArticleList) == 0 && len(tagArticleList) > 0 {
 			slices.Reverse(tagArticleList)
 			articleList = tagArticleList
-			where.Where("id in ?", articleList)
 		}
 		//没有tag,有排序
 		if len(tagArticleList) == 0 && len(sortArticleList) > 0 {
 			articleList = sortArticleList
-			where.Where("id in ?", articleList)
 		}
-		if cr.Type != 2 {
+		//获取搜索的id列表
+		var idList, words []string
+		if cr.Key != "" {
+			idList, words = redis_article.GetArticleSearchIndex(cr.Key)
+			fmt.Println("idList", idList)
+			var _articleList []string
+			for _, sortID := range articleList {
+				for _, id := range idList {
+					if sortID == id {
+						_articleList = append(_articleList, sortID)
+					}
+				}
+			}
+			articleList = _articleList
+			topArticleIDList = []uint{}
+			cr.Key = ""
+		}
+		//按照查询顺序排序
+		if cr.Type != 1 {
 			var _article []uint
 			for _, article := range articleList {
 				id, _ := strconv.Atoi(article)
@@ -121,6 +137,10 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 			}
 			topArticleIDList = append(topArticleIDList, _article...)
 		}
+		if cr.Key != "" && len(articleList) == 0 {
+			topArticleIDList = []uint{}
+		}
+		where.Where("id in ?", articleList)
 
 		_list, count, _ := common.ListQuery(models.ArticleModel{}, common.Options{
 			Preloads:     []string{"CategoryModel", "UserModel"},
@@ -136,6 +156,8 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 			model.CollectCount = model.CollectCount + collectMap[model.ID]
 			model.LookCount = model.LookCount + lookMap[model.ID]
 			model.CommentCount = model.CommentCount + commentMap[model.ID]
+			model.Title = text_service.ReplaceSearchWords(model.Title, words)
+			model.Abstract = text_service.ReplaceSearchWords(model.Abstract, words)
 			item := ArticleListResponse{
 				ArticleModel: model,
 				AdminTop:     articleTopMap[model.ID],

@@ -14,7 +14,6 @@ func main() {
 	flags.Parse()
 	global.Config = core.ReadConf()
 	core.InitLogrus()
-	//go core.InitProgressbar(20)
 	logrus.Infof("当前配置文件为: %s", flags.FlagOptions.File)
 	global.DB = core.InitDB()
 	global.Redis = core.InitRedis()
@@ -24,11 +23,8 @@ func main() {
 	global.AhoCorasick = core.InitAhoCorasick()
 	core_observer.InitObserver()
 	core.InitGse() //分词
-	//core_redis.InitRedisService()
 	flags.Run()
 	core.InitMysqlEs()
-	//artFontFiles.OutPutArtisticFont(artFontFiles.WELCOME)
-	//core.ProgressbarEndMsg <- true
 	//定时任务
 	cron_service.Cron()
 	//启动web程序

@@ -83,7 +83,7 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		case 0:
 			sortArticleList = redis_article.GetAllCacheAllSort()
 		case 1:
-			where.Order("created_at desc")
+			cr.PageInfo.Order = "created_at desc"
 		case 2:
 			sortArticleList = redis_article.GetAllCacheCommentSort()
 		case 3:
@@ -140,7 +140,9 @@ func (SearchApi) ArticleSearchView(c *gin.Context) {
 		if cr.Key != "" && len(articleList) == 0 {
 			topArticleIDList = []uint{}
 		}
-		where.Where("id in ?", articleList)
+		if len(articleList) > 0 {
+			where.Where("id in ?", articleList)
+		}
 
 		_list, count, _ := common.ListQuery(models.ArticleModel{}, common.Options{
 			Preloads:     []string{"CategoryModel", "UserModel"},

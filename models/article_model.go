@@ -9,6 +9,7 @@ import (
 	_ "embed"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"sync"
 )
 
 type ArticleModel struct {
@@ -67,23 +68,113 @@ func (a *ArticleModel) BeforeDelete(tx *gorm.DB) (err error) {
 func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 	// 创建文章之后的钩子函数
 	// 只有发布中的文章会放到全文搜索里面去
+	var wg sync.WaitGroup
 	if a.Status != enum.ArticleStatusPublished {
 		return nil
 	}
-	for _, tag := range a.TagList {
-		if tag == "" {
-			continue
+	go func() {
+		wg.Add(1)
+		err = a.setTextSearchIndex()
+		if err != nil {
+			logrus.Error(err.Error())
 		}
-		redis_article.SetTagAgg(tag, a.ID)
-		redis_article.SetTagAggAdd(tag)
-	}
-	textList := text_service.MdContentTransformation(a.ID, a.Title, a.Content)
-	var list []TextModel
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		a.setArticleSearchIndex()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		a.setTagSearchIndex()
+		wg.Done()
+	}()
+	wg.Wait()
+	return nil
+}
 
+func (a *ArticleModel) AfterDelete(tx *gorm.DB) (err error) {
+	// 删除之后
+	var wg sync.WaitGroup
+	go func() {
+		wg.Add(1)
+		var textList []TextModel
+		tx.Find(&textList, "article_id = ?", a.ID)
+		if len(textList) > 0 {
+			logrus.Infof("删除全文记录 %d", len(textList))
+			tx.Delete(&textList)
+		}
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		redis_article.RemoveTagAgg(a.ID, a.TagList...)
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		text_service.DeleteArticleParticiple(a.ID)
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		text_service.DeleteTextParticiple(a.ID)
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		redis_article.ClearArticleSortByID(a.ID)
+		wg.Done()
+	}()
+	wg.Wait()
+	return nil
+}
+
+func (a *ArticleModel) AfterUpdate(tx *gorm.DB) (err error) {
+	// 正文发生了变化，才去做转换
+	a.AfterDelete(tx)
+	a.AfterCreate(tx)
+	return nil
+}
+
+func (a *ArticleModel) setArticleSearchIndex() {
+	cacheCollect := redis_article.GetAllCacheCollect(1)
+	cacheComment := redis_article.GetAllCacheComment(1)
+	cacheDigg := redis_article.GetAllCacheDigg(1)
+	cacheLook := redis_article.GetAllCacheLook(1)
+	collectCount := cacheCollect[a.ID] + a.CollectCount
+	commentCount := cacheComment[a.ID] + a.CommentCount
+	diggCount := cacheDigg[a.ID] + a.DiggCount
+	lookCount := cacheLook[a.ID] + a.LookCount
+	redis_article.SetCacheCollectSortByCount(a.ID, collectCount)
+	redis_article.SetCacheCommentSortByCount(a.ID, commentCount)
+	redis_article.SetCacheDiggSortByCount(a.ID, diggCount)
+	redis_article.SetCacheLookSortByCount(a.ID, lookCount)
+	redis_article.SetCacheAllSort(a.ID)
+	words := text_service.TextParticiple(a.Title, a.Abstract)
+	var wg sync.WaitGroup
+	go func() {
+		wg.Add(1)
+		redis_article.SetArticleSearchIndex(a.ID, words)
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		redis_article.SetArticleSearchWords(a.ID, words)
+		wg.Done()
+	}()
+	wg.Wait()
+}
+
+func (a *ArticleModel) setTextSearchIndex() error {
+	var list []TextModel
+	var textParticipleList []text_service.ParticipleTextModel
+
+	textList := text_service.MdContentTransformation(a.ID, a.Title, a.Content)
 	if len(textList) == 0 {
 		return nil
 	}
-
 	for _, model := range textList {
 		list = append(list, TextModel{
 			ArticleID: model.ArticleID,
@@ -91,8 +182,11 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 			Body:      model.Body,
 		})
 	}
-	err = tx.Create(&list).Error
-	var textParticipleList []text_service.ParticipleTextModel
+	err := global.DB.Create(&list).Error
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
 	for _, _list := range list {
 		textParticiple := text_service.ParticipleTextModel{
 			ID: _list.ID,
@@ -106,32 +200,19 @@ func (a *ArticleModel) AfterCreate(tx *gorm.DB) (err error) {
 	}
 
 	//redis分词索引
-	text_service.TextParticiple(textParticipleList)
+	text_service.TextSearchParticiple(textParticipleList...)
 	if err != nil {
 		logrus.Error(err)
 		return nil
 	}
 	return nil
 }
-
-func (a *ArticleModel) AfterDelete(tx *gorm.DB) (err error) {
-	// 删除之后
-	redis_article.RemoveTagAgg(a.ID, a.TagList...)
-	var textList []TextModel
-	tx.Find(&textList, "article_id = ?", a.ID)
-	if len(textList) > 0 {
-		logrus.Infof("删除全文记录 %d", len(textList))
-		tx.Delete(&textList)
+func (a *ArticleModel) setTagSearchIndex() {
+	for _, tag := range a.TagList {
+		if tag == "" {
+			continue
+		}
+		redis_article.SetTagAgg(tag, a.ID)
+		redis_article.SetTagAggAdd(tag)
 	}
-	text_service.DeleteArticleParticiple(a.ID)
-	text_service.DeleteTextParticiple(a.ID)
-	redis_article.ClearArticleSortByID(a.ID)
-	return nil
-}
-
-func (a *ArticleModel) AfterUpdate(tx *gorm.DB) (err error) {
-	// 正文发生了变化，才去做转换
-	a.AfterDelete(tx)
-	a.AfterCreate(tx)
-	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"blogv2/service/text_service"
 )
 
-func initRedisArticleSort(list []text_service.ParticipleArticleModel) {
+func initRedisArticleSort(list ...text_service.ParticipleArticleModel) {
 	cacheCollect := redis_article.GetAllCacheCollect(1)
 	cacheComment := redis_article.GetAllCacheComment(1)
 	cacheDigg := redis_article.GetAllCacheDigg(1)

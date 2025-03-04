@@ -103,7 +103,7 @@ func (ArticleApi) CollectListView(c *gin.Context) {
 		cr.UserID = claims.UserID
 	case 2:
 		var userConf models.UserConfModel
-		err = global.DB.Take(&userConf, "user_id =?", cr.UserID).Error
+		err = global.DB.Take(&userConf, "user_id = ?", cr.UserID).Error
 		if err != nil {
 			res.FailWithMsg(c, "用户不存在")
 			return

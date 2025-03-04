@@ -27,7 +27,6 @@ func SyncArticle() {
 		if collect == 0 || digg == 0 || look == 0 || comment == 0 {
 			continue
 		}
-
 		err := global.DB.Model(&model).Updates(map[string]any{
 			"look_count":    gorm.Expr("look_count + ?", look),
 			"digg_count":    gorm.Expr("digg_count + ?", digg),

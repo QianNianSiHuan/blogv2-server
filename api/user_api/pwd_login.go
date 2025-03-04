@@ -8,6 +8,7 @@ import (
 	"blogv2/service/log_service"
 	"blogv2/service/redis_service/redis_login"
 	"blogv2/service/user_server"
+	ip2 "blogv2/utils/ip"
 	jwts "blogv2/utils/jwt"
 	"blogv2/utils/pwd"
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,13 @@ func (UserApi) PwdLoginView(c *gin.Context) {
 		Role:     user.Role,
 	})
 	redis_login.ClearLoginCountAll(strconv.Itoa(int(user.ID)), c.ClientIP())
+	ip := c.ClientIP()
+	addr := ip2.GetIpAddr(ip)
+
+	global.DB.Model(models.UserModel{}).Where("id = ?", user.ID).Updates(models.UserModel{
+		IP:   ip,
+		Addr: addr,
+	})
 	log_service.NewLoginSuccess(c, enum.UserPwdLoginType)
 	user_server.NewUserServiceApp(user).UserLogin(c)
 	res.SuccessWithData(c, token)

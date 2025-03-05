@@ -1,0 +1,27 @@
+package site_api
+
+import (
+	"blogv2/common/res"
+	"blogv2/global"
+	"github.com/gin-gonic/gin"
+)
+
+type AISiteInfoResponse struct {
+	Enable   bool   `json:"enable"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Abstract string `json:"abstract"`
+}
+
+func (SiteApi) AISiteInfoView(c *gin.Context) {
+	if !global.Config.Ai.Enable {
+		res.FailWithMsg(c, "站点ai未启用")
+		return
+	}
+	res.SuccessWithData(c, AISiteInfoResponse{
+		Enable:   global.Config.Ai.Enable,
+		Nickname: global.Config.Ai.Nickname,
+		Avatar:   global.Config.Ai.Avatar,
+		Abstract: "我是一名人工智能助手,现在处于测试阶段,你可以问我一些问题",
+	})
+}

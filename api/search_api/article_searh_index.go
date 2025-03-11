@@ -5,7 +5,7 @@ import (
 	"blogv2/global"
 	"blogv2/models"
 	"github.com/gin-gonic/gin"
-	"sync"
+	"github.com/sirupsen/logrus"
 )
 
 func (SearchApi) ArticleSearchIndexView(c *gin.Context) {
@@ -18,13 +18,10 @@ func (SearchApi) ArticleSearchIndexView(c *gin.Context) {
 	res.SuccessWithMsg(c, "后台开始重建索引...")
 	var articleList []models.ArticleModel
 	global.DB.Model(models.ArticleModel{}).Where("id in ?", cr.IDList).Find(&articleList)
-	var wg sync.WaitGroup
 	for _, article := range articleList {
-		go func() {
-			wg.Add(1)
-			article.AfterUpdate(global.DB)
-			wg.Done()
-		}()
+		err = article.AfterUpdate(global.DB)
+		if err != nil {
+			logrus.Error(err)
+		}
 	}
-	wg.Wait()
 }

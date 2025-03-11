@@ -30,13 +30,14 @@ type StreamData struct {
 
 func ChatStream(list []llms.MessageContent, c *gin.Context) (err error) {
 	llm, err := openai.New(
-		openai.WithModel("gpt-3.5-turbo"),
-		openai.WithBaseURL("https://api.chatanywhere.tech"),
+		openai.WithModel("qwen-plus"),
+		openai.WithBaseURL("https://dashscope.aliyuncs.com/compatible-mode/v1"),
 		openai.WithToken(global.Config.Ai.SecretKey),
 	)
 
 	if err != nil {
 		logrus.Error(err)
+		return err
 	}
 	messages := list
 	_, err = llm.GenerateContent(context.Background(), messages, llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {

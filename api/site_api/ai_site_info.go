@@ -22,6 +22,6 @@ func (SiteApi) AISiteInfoView(c *gin.Context) {
 		Enable:   global.Config.Ai.Enable,
 		Nickname: global.Config.Ai.Nickname,
 		Avatar:   global.Config.Ai.Avatar,
-		Abstract: "我是一名人工智能助手,现在处于测试阶段,你可以问我一些问题",
+		Abstract: global.Config.Ai.Abstract,
 	})
 }

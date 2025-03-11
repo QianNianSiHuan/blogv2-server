@@ -38,15 +38,19 @@ func (UserApi) UserBaseInfoView(c *gin.Context) {
 		res.FailWithMsg(c, "用户不存在")
 		return
 	}
+	var articleCount int64
+	global.DB.Find(&models.ArticleModel{}, "user_id = ?", cr.ID).Count(&articleCount)
+	var lookCount int64
+	global.DB.Find(&models.UserArticleLookHistoryModel{}, "user_id = ?", cr.ID).Count(&lookCount)
 	data := UserBaseInfoResponse{
 		UserID:       user.ID,
 		CodeAge:      user.CodeAge(),
 		Avatar:       user.Avatar,
 		Nickname:     user.Nickname,
-		LookCount:    1,
-		ArticleCount: 1,
-		FansCount:    1,
-		FollowCount:  1,
+		LookCount:    int(lookCount),
+		ArticleCount: int(articleCount),
+		FansCount:    0,
+		FollowCount:  0,
 		Place:        user.Addr,
 		OpenCollect:  user.UserConfModel.OpenCollect,
 		OpenFollow:   user.UserConfModel.OpenFollow,

@@ -45,8 +45,8 @@ func (UserApi) RegisterEmailView(c *gin.Context) {
 	//创建用户
 	uname := base64Captcha.RandText(5, "0123456789")
 	var user = models.UserModel{
-		Username:       fmt.Sprintf("email_%s", uname),
-		Nickname:       "邮箱用户",
+		Username:       email,
+		Nickname:       fmt.Sprintf("email_%s", uname),
 		RegisterSource: enum.RegisterEmailSourceType,
 		Password:       hashPwd,
 		Email:          email,
